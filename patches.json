@@ -562,29 +562,22 @@
   {
     "group": "telemetry",
     "file": "background.js",
-    "find": "const r=y(\"5eloldal\");try{",
-    "replace": "const r=y(\"5eloldal\");try{return;",
-    "why": "PostHog capture (cs): never POST to us.i.posthog.com. Covers extension_installed/updated/first_run, storage_migration_completed, referral_code_captured and settings_push_aborted, and the analytics_id it would mint on first send."
+    "find": "const e=y(\"9popk2gd\");try{",
+    "replace": "const e=y(\"9popk2gd\");try{return!1;",
+    "why": "Analytics consent check (is): always off, so PostHog capture (cs) returns before minting an analytics_id or POSTing to us.i.posthog.com (extension_installed/updated/first_run, storage_migration_completed, referral_code_captured, settings_push_aborted)."
   },
   {
     "group": "telemetry",
     "file": "content-scripts/all.js",
-    "find": "const r=at(\"5eloldal\");try{",
-    "replace": "const r=at(\"5eloldal\");try{return;",
-    "why": "PostHog capture (I2): never POST to us.i.posthog.com. All ~90 call sites (script_loaded, app_used, feature_used, widget/theme/todo events, paywall and upgrade views) and the trackEvent adapter (JRe -> I2) go through it."
+    "find": "const t=at(\"9popk2gd\");try{",
+    "replace": "const t=at(\"9popk2gd\");try{return!1;",
+    "why": "Analytics consent check (S2): always off. PostHog capture (I2) then never POSTs to us.i.posthog.com, for every call site (script_loaded, app_used, feature_used, widget/theme/todo events, paywall and upgrade views) and the trackEvent adapter (JRe -> I2). The startup /users/merge-analytics call checks it too, so the anonymous analytics_id is never linked to an account."
   },
   {
     "group": "telemetry",
     "file": "content-scripts/viewer.js",
-    "find": "const r=g(\"5eloldal\");try{",
-    "replace": "const r=g(\"5eloldal\");try{return;",
-    "why": "PostHog capture in the Canvas file viewer (xh): never POST to us.i.posthog.com."
-  },
-  {
-    "group": "telemetry",
-    "file": "content-scripts/all.js",
-    "find": "const t=at(\"qpvrv93d\");try{",
-    "replace": "const t=at(\"qpvrv93d\");try{return;",
-    "why": "Startup /users/merge-analytics call: never send the anonymous analytics_id to api.bettercampus.com to link it to an account."
+    "find": "const e=g(\"9popk2gd\");try{",
+    "replace": "const e=g(\"9popk2gd\");try{return!1;",
+    "why": "Analytics consent check in the Canvas file viewer (kh): always off, so PostHog capture (xh) never POSTs to us.i.posthog.com. Its only callers are annotation events, which the file-annotations removal already stops; this keeps telemetry off if annotations come back."
   }
 ]
