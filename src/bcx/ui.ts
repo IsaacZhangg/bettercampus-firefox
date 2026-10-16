@@ -39,6 +39,27 @@ export function mountLayer(css: string, container?: Element | null) {
 	return { host, root, remove: () => host.remove() };
 }
 
+// A notice in the bottom corner. Unlike mountLayer, it leaves the rest of the
+// page clickable.
+export function toast(text: string, ms = 8000) {
+	const host = h("div", {
+		style: "position:fixed;right:16px;bottom:16px;z-index:2147483647",
+	});
+	const root = host.attachShadow({ mode: "open" });
+	const close = () => host.remove();
+	root.append(
+		h("style", {}, TOAST_CSS),
+		h(
+			"div",
+			{ class: "panel toast", role: "status" },
+			h("span", {}, text),
+			h("button", { class: "btn", on: { click: close } }, "OK"),
+		),
+	);
+	document.documentElement.append(host);
+	setTimeout(close, ms);
+}
+
 // Panels use the same theme variables as BetterCampus's own UI (`bg-theme-0`
 // etc.), which reach into our shadow roots because custom properties inherit;
 // the fallbacks are their light defaults.
@@ -54,4 +75,8 @@ export const BASE_CSS = `
 .btn.primary:hover { background: #3f39dc; }
 .icon { width: 36px; height: 36px; padding: 0; display: inline-grid; place-items: center; font-size: 17px; }
 input[type=range] { accent-color: #4c46f0; }
+`;
+
+const TOAST_CSS = `${BASE_CSS}
+.toast { display: flex; align-items: center; gap: 14px; width: max-content; max-width: min(440px, calc(100vw - 32px)); padding: 12px 12px 12px 16px; font-size: 14px; line-height: 1.4; border-radius: 14px; }
 `;

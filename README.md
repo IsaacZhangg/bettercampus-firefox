@@ -56,6 +56,15 @@ BetterCampus's dark mode is a fixed list of Canvas selectors. Canvas's newer Rea
   - Text colors that vanish against what they sit on fall back to the theme's text color, and so does Canvas's purple @mention.
   - Elements that bring their own readable color pair, like white-on-black labels, are left alone.
 
+## Settings backup (`src/bcx/backup.ts`, `src/options/`)
+
+Firefox deletes all of an add-on's storage when the add-on is removed: on uninstall, and at every restart for a copy loaded from `about:debugging`. Installing a new build over the old one counts as an update and keeps everything. Removing it first used to reset every setting.
+
+- **Automatic copy.** On your Canvas site (Other → Your Canvas URL, detected automatically), `bcx.js` keeps a copy of your settings in that site's localStorage, which Firefox leaves alone when the add-on goes. The copy is updated two seconds after a change and checked once per page load. After a fresh install, the first visit to that site writes the copy back, reloads the page, and shows a notice with the copy's date. An install that already has settings never restores over them, so the copy can't undo newer changes or a Reset All Preferences.
+- **What's in it.** All of BetterCampus's settings and local data: theme, colors, cards, sidebar, To-Do options and edits, the GPA calculator, the Quick Note, and our own `bcx_*` keys. It leaves out caches of remote data, the device and analytics IDs, account fields and upstream's install bookkeeping (`src/bcx/settings.ts`). If a copy won't fit in the site's 5 MB quota, it drops edited images (embedded `data:` URLs) and keeps everything else.
+- **Who can read it.** Canvas's own page scripts can read the site's localStorage, the same as the theme cache BetterCampus already keeps there.
+- **Backup file.** `about:addons` → BetterCampus → Preferences opens a page that shows when the automatic copy last ran, and exports your settings to a JSON file or imports them from one. Use it to move to another computer or profile, or before clearing Canvas's site data, which deletes the automatic copy. Firefox's "Delete cookies and site data when Firefox is closed" setting does that at every restart unless Canvas is listed as an exception.
+
 ## Load time
 
 BetterCampus injects `all.js` into every page you visit, so its cost lands on all your browsing, not just Canvas. The build cuts that cost in four ways. None of them changes a feature; the one thing that stops working is a hidden developer timing tool (see Profiler).
@@ -106,11 +115,11 @@ Release Firefox only installs add-ons signed by Mozilla. Signing it as an **unli
    - **CLI with 1Password:** save the keys in 1Password as an **API Credential** item: the JWT issuer goes in **username** and the JWT secret in **credential**. Point the two references in `amo.env` at that item; they default to `op://Private/AMO/…`, and each field's **Copy Secret Reference** gives the exact path. Turn on 1Password → Settings → Developer → **Integrate with 1Password CLI**, then run `bun run sign:1p`. `op run` resolves the references and passes the keys only to the signing process.
 3. In Firefox, open `about:addons` → ⚙ → **Install Add-on From File…** and pick the signed `.xpi`.
 
-AMO signs each version number once per add-on ID. To sign a rebuild of the same upstream version, build with a fourth version part: `BUILD=2 bun run build` makes `9.8.15.2`. Installing a newer signed build replaces the old one and keeps your settings, since the add-on ID stays the same.
+AMO signs each version number once per add-on ID. To sign a rebuild of the same upstream version, build with a fourth version part: `BUILD=2 bun run build` makes `9.8.15.2`. Installing a newer signed build replaces the old one and keeps your settings, since the add-on ID stays the same. If you remove the old one first, opening Canvas brings them back from the [settings backup](#settings-backup-srcbcxbackupts-srcoptions).
 
 Unlisted add-ons can still be manually reviewed by Mozilla at any time, and reviewers may ask for unminified source, which this port doesn't have.
 
-To test without signing, open `about:debugging#/runtime/this-firefox`, click **Load Temporary Add-on…**, and pick `firefox/manifest.json`. That copy is removed when Firefox restarts. Developer Edition, Nightly and ESR can also install the unsigned `.xpi` after setting `xpinstall.signatures.required` to `false` in `about:config`.
+To test without signing, open `about:debugging#/runtime/this-firefox`, click **Load Temporary Add-on…**, and pick `firefox/manifest.json`. That copy and its storage are removed when Firefox restarts; after loading it again, opening Canvas restores your settings from the backup. Developer Edition, Nightly and ESR can also install the unsigned `.xpi` after setting `xpinstall.signatures.required` to `false` in `about:config`.
 
 ## Known limitations
 

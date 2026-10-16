@@ -111,7 +111,8 @@ browser.storage.onChanged.addListener((changes, area) => {
 		refresh();
 	}
 	// Picking Day/Week/Month anywhere (dashboard header or settings) ends ours.
-	if ("todo_time" in changes && current) apply(null);
+	// A write of both keys at once is a settings restore or import, not that.
+	if ("todo_time" in changes && !(KEY in changes) && current) apply(null);
 });
 
 const CSS = `${BASE_CSS}

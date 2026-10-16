@@ -1,4 +1,5 @@
 import "./registry";
+import "./backup";
 import "./cardImage";
 import "./agenda";
 import "./todoRange";

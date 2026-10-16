@@ -280,10 +280,12 @@ if (build) {
 // runs fine as a non-persistent event page.
 manifest.background = { scripts: [manifest.background.service_worker] };
 
-// Our own scripts (src/), in the same isolated world as all.js.
-for (const [name, entry] of [
-	["bcx", "src/bcx/main.ts"],
-	["subframe", "src/subframe.ts"],
+// Our own scripts (src/): two content scripts, in the same isolated world as
+// all.js, and the options page's settings export/import.
+for (const [entry, file] of [
+	["src/bcx/main.ts", "content-scripts/bcx.js"],
+	["src/subframe.ts", "content-scripts/subframe.js"],
+	["src/options/options.ts", "options/options.js"],
 ]) {
 	const out = await Bun.build({
 		entrypoints: [resolve(root, entry)],
@@ -292,11 +294,13 @@ for (const [name, entry] of [
 		minify: true,
 	});
 	if (!out.success) throw new AggregateError(out.logs, `${entry} build failed`);
-	await Bun.write(
-		resolve(outDir, `content-scripts/${name}.js`),
-		out.outputs[0],
-	);
+	await Bun.write(resolve(outDir, file), out.outputs[0]);
 }
+await Bun.write(
+	resolve(outDir, "options/options.html"),
+	Bun.file(resolve(root, "src/options/options.html")),
+);
+manifest.options_ui = { page: "options/options.html", open_in_tab: true };
 
 // all.js runs in the top frame only, followed by bcx.js, whose functions its
 // patched controls call through globalThis.__bcx. In subframes, all.js used
