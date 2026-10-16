@@ -270,14 +270,16 @@ async function render(date: Date) {
 
 	const clockText = el("p", "", "");
 	const tick = () => {
+		// Closing their widget detaches ours with it; stop the clock and list.
+		if (!v.el.isConnected) return closeView();
 		clockText.textContent = new Date().toLocaleTimeString("en-US", {
 			hour: ctx?.timeFormat.startsWith("HH") ? "2-digit" : "numeric",
 			minute: "2-digit",
 			hour12: !ctx?.timeFormat.startsWith("HH"),
 		});
 	};
-	tick();
 	v.timer = window.setInterval(tick, 1000);
+	tick();
 
 	const counts = el("div", "flex items-center gap-2");
 	const body = el(

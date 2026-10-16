@@ -5,7 +5,7 @@
 // all-day; the session row asks `globalThis.__bcxSessionTime` for the time to
 // show.
 
-import { api, onFeature } from "./registry";
+import { onFeature } from "./registry";
 import { h } from "./ui";
 
 type Times = Record<string, number>;
@@ -76,7 +76,7 @@ async function save(id: string, minutes: number | null) {
 	if (minutes == null) delete next[id];
 	else next[id] = minutes;
 	setTimes(next);
-	await api.storage.local.set({ [KEY]: next });
+	await browser.storage.local.set({ [KEY]: next });
 }
 
 globalThis.__bcxSessionTime = {
@@ -89,7 +89,7 @@ globalThis.__bcxSessionTime = {
 };
 
 // Drop times whose session has since been removed.
-api.storage.local.get([KEY, "overrides"]).then((stored) => {
+browser.storage.local.get([KEY, "overrides"]).then((stored) => {
 	const saved = parse(stored[KEY]);
 	const sessions = (stored.overrides ?? {}) as Record<
 		string,
@@ -102,10 +102,10 @@ api.storage.local.get([KEY, "overrides"]).then((stored) => {
 	);
 	setTimes(live);
 	if (Object.keys(live).length !== Object.keys(saved).length)
-		api.storage.local.set({ [KEY]: live });
+		browser.storage.local.set({ [KEY]: live });
 });
 
-api.storage.onChanged.addListener((changes, area) => {
+browser.storage.onChanged.addListener((changes, area) => {
 	if (area === "local" && KEY in changes)
 		setTimes(parse(changes[KEY].newValue));
 });

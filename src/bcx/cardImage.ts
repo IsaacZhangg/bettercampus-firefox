@@ -185,19 +185,7 @@ function exportImage(img: HTMLImageElement, s: State, type: ImageType) {
 	const ctx = canvas.getContext("2d");
 	if (!ctx) throw new Error("Canvas unavailable");
 	draw(ctx, img, s, w, hgt);
-	return new Promise<string>((resolve, reject) =>
-		canvas.toBlob(
-			(blob) => {
-				if (!blob) return reject(new Error("Couldn't encode the image"));
-				const reader = new FileReader();
-				reader.onload = () => resolve(reader.result as string);
-				reader.onerror = () => reject(reader.error);
-				reader.readAsDataURL(blob);
-			},
-			"image/webp",
-			0.92,
-		),
-	);
+	return canvas.toDataURL("image/webp", 0.92);
 }
 
 const CSS = `${BASE_CSS}
@@ -353,17 +341,14 @@ function openEditor(d: Detail, src: string, img: HTMLImageElement) {
 	window.addEventListener("keydown", onKey, true);
 	open = { src: d.imageSrc, close };
 
-	saveBtn.addEventListener("click", async () => {
-		saveBtn.disabled = true;
-		error.hidden = true;
+	saveBtn.addEventListener("click", () => {
 		try {
-			const out = await exportImage(img, s, type);
+			const out = exportImage(img, s, type);
 			close();
 			d.save(out);
 		} catch (err) {
 			error.textContent = `Couldn't save: ${(err as Error).message}`;
 			error.hidden = false;
-			saveBtn.disabled = false;
 		}
 	});
 

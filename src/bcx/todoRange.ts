@@ -4,7 +4,7 @@
 // active the list provider asks `globalThis.__bcxTodoRange` for its date range
 // and step instead of using its timeframe presets.
 
-import { api, onFeature } from "./registry";
+import { onFeature } from "./registry";
 import { BASE_CSS, h, mountLayer } from "./ui";
 
 type Unit = "days" | "weeks" | "months";
@@ -93,16 +93,16 @@ async function apply(r: Range | null) {
 	current = r;
 	publish();
 	refresh();
-	await api.storage.local.set({ [KEY]: r });
+	await browser.storage.local.set({ [KEY]: r });
 }
 
-api.storage.local.get(KEY).then((stored) => {
+browser.storage.local.get(KEY).then((stored) => {
 	current = isRange(stored[KEY]) ? stored[KEY] : null;
 	publish();
 	if (current) refresh();
 });
 
-api.storage.onChanged.addListener((changes, area) => {
+browser.storage.onChanged.addListener((changes, area) => {
 	if (area !== "local") return;
 	if (KEY in changes) {
 		const next = changes[KEY].newValue;
@@ -159,10 +159,9 @@ function openPicker(container?: Element | null) {
 		window.removeEventListener("keydown", onKey, true);
 	};
 	const onKey = (e: KeyboardEvent) => {
-		if (e.key === "Escape") {
-			e.stopPropagation();
-			close();
-		} else if (e.key === "Enter") save();
+		if (e.key !== "Escape") return;
+		e.stopPropagation();
+		close();
 	};
 	const save = () => {
 		clampValue();
@@ -170,6 +169,10 @@ function openPicker(container?: Element | null) {
 		apply({ value: Number(value.value), unit: unit.value as Unit });
 	};
 	window.addEventListener("keydown", onKey, true);
+	// Only from the number field, so Enter on Cancel or Turn off does that.
+	value.addEventListener("keydown", (e) => {
+		if (e.key === "Enter") save();
+	});
 
 	const scrim = h(
 		"div",

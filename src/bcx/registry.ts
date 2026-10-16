@@ -9,10 +9,6 @@ declare global {
 	var __bcx: ((detail: FeatureDetail) => void) | undefined;
 }
 
-export const api: typeof browser =
-	(globalThis as { browser?: typeof browser }).browser ??
-	(globalThis as unknown as { chrome: typeof browser }).chrome;
-
 // biome-ignore lint/suspicious/noExplicitAny: each handler narrows its own detail
 const handlers = new Map<string, (detail: any) => void | Promise<void>>();
 
