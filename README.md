@@ -4,7 +4,7 @@ An unofficial Firefox port of the [BetterCampus (prev. BetterCanvas)](https://ch
 
 ## What's removed
 
-`patches.json` holds 83 string patches against the minified bundle. Each one has a `group` and a `why`.
+`patches.json` holds 80 string patches against the minified bundle. Each one has a `group` and a `why`.
 
 | Group | Removes |
 | --- | --- |
