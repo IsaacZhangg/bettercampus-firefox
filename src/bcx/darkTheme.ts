@@ -222,10 +222,13 @@ function backdrop(el: HTMLElement, own: string[], page: RGBA) {
 // the element brings its own readable text color; and text colors that
 // disappear against what they sit on fall back to the theme's text color.
 function markInk() {
+	// Document order, so an element's ancestors are already marked.
+	const targets = document.querySelectorAll<HTMLElement>(INK_TARGETS);
+	// palette() forces a style flush, so skip it on pages with nothing to mark.
+	if (!targets.length) return;
 	const pal = palette();
 	if (!pal) return;
-	// Document order, so an element's ancestors are already marked.
-	for (const el of document.querySelectorAll<HTMLElement>(INK_TARGETS)) {
+	for (const el of targets) {
 		const marks: string[] = [];
 		const bg = inlineBg(el);
 		const color = parse(
@@ -258,8 +261,12 @@ function run() {
 	queued = false;
 	const active = !!document.getElementById("darkcss")?.textContent;
 	const known = overrides.size;
-	scanSheets();
-	if (active) markInk();
+	// The rules only matter while active. Sheets resume from where the last
+	// scan stopped, so turning it on catches up on everything added meanwhile.
+	if (active) {
+		scanSheets();
+		markInk();
+	}
 	if (overrides.size !== known || active !== wasActive) {
 		style.textContent = active ? STATIC_CSS + [...overrides].join("\n") : "";
 		wasActive = active;

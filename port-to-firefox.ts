@@ -6,6 +6,7 @@ import { existsSync, readdirSync, rmSync } from "node:fs";
 import { basename, resolve } from "node:path";
 import { parse } from "acorn";
 import { $ } from "bun";
+import { type MinifyOptions, minify } from "terser";
 
 const root = import.meta.dir;
 const zip = resolve(
@@ -26,37 +27,98 @@ rmSync(resolve(outDir, "_metadata"), { recursive: true, force: true });
 
 // Strip AI study tools, login/Pro upsells, promos, and cloud app pages. Every
 // anchor must match exactly once, so a new upstream version fails loudly
-// instead of silently skipping a patch.
+// instead of silently skipping a patch. An entry without `replace` only pins
+// upstream code that src/ mirrors.
 type Patch = {
 	group: string;
 	file: string;
 	find: string;
-	replace: string;
+	replace?: string;
 	why: string;
 };
 const patches: Patch[] = await Bun.file(resolve(root, "patches.json")).json();
 for (const [file, list] of Map.groupBy(patches, (p) => p.file)) {
 	const path = resolve(outDir, file);
 	let src = await Bun.file(path).text();
-	for (const p of list) {
-		const hits = src.split(p.find).length - 1;
+	for (const { group, find, replace, why } of list) {
+		const hits = src.split(find).length - 1;
 		if (hits !== 1)
 			throw new Error(
-				`[${p.group}] ${file}: anchor matched ${hits} times (${p.why})`,
+				`[${group}] ${file}: anchor matched ${hits} times (${why})`,
 			);
-		src = src.replace(p.find, () => p.replace);
+		if (replace !== undefined) src = src.replace(find, () => replace);
 	}
 	await Bun.write(path, src);
 }
 
-// AMO's linter refuses to parse (and so refuses to sign) any JS file of 5 MiB
-// or more. BetterCampus wraps ~9k functions in a local profiler:
+const manifestPath = resolve(outDir, "manifest.json");
+const manifest = await Bun.file(manifestPath).json();
+
+// Content scripts that only serve the removed cloud/Pro features: calendar
+// sync, Stripe checkout, and the bridge that hands ext.bettercampus.com the
+// extension's settings, IndexedDB and Canvas tab.
+const unused = [
+	"content-scripts/googlecalendar.js",
+	"content-scripts/outlookcalendar.js",
+	"content-scripts/stripe.js",
+	"content-scripts/extension-bridge.js",
+];
+manifest.content_scripts = manifest.content_scripts.filter(
+	(cs: { js: string[] }) => !cs.js.some((js) => unused.includes(js)),
+);
+for (const f of unused) rmSync(resolve(outDir, f));
+
+// Packaged files nothing references (5.9 MB): large illustrations, the
+// referral avatars, the grades onboarding videos, a Chrome Web Store
+// screenshot, old and unused icons, and a dark-mode stylesheet the bundle
+// doesn't load (it builds its own). Each pattern must match, and no remaining
+// file may name what it removed, so a new upstream version that starts using
+// one fails here.
+const deadAssets = [
+	"navigator/navigator_*.png",
+	"navigator/themes_*.png",
+	"referrals/**",
+	"first-time/**",
+	"cws.webp",
+	"assets/dark.css",
+	"icon/icon-19.png",
+	"icon/icon-38.png",
+	"icon/iconwpadding.png",
+	"icon/oldicon-128.png",
+];
+const dead = deadAssets.flatMap((pattern) => {
+	const hits = [...new Bun.Glob(pattern).scanSync(outDir)];
+	if (!hits.length) throw new Error(`Dead asset ${pattern} matched nothing`);
+	return hits;
+});
+for (const f of dead) rmSync(resolve(outDir, f));
+for (const dir of ["referrals", "first-time"])
+	rmSync(resolve(outDir, dir), { recursive: true });
+for (const file of new Bun.Glob("**/*.{js,css,json,html}").scanSync(outDir)) {
+	const text = await Bun.file(resolve(outDir, file)).text();
+	const named = dead.find((f) => text.includes(basename(f)));
+	if (named) throw new Error(`${file} still refers to removed ${named}`);
+}
+
+// Web-accessible patterns left matching nothing.
+manifest.web_accessible_resources = manifest.web_accessible_resources
+	.map((war: { resources: string[] }) => ({
+		...war,
+		resources: war.resources.filter(
+			(p) => !new Bun.Glob(p).scanSync(outDir).next().done,
+		),
+	}))
+	.filter((war: { resources: string[] }) => war.resources.length);
+
+// BetterCampus wraps ~9k functions per bundle in a local profiler:
 //   const e=at("id");try{BODY}catch(n){throw ot(e),n}finally{st(e)}
-// Its spans only record while a debug flag is on, so in normal use the
-// try/catch/finally does nothing. Unwrapping to `const e=at("id");{BODY}`
-// gets oversized files under the limit; `e` stays defined for the
-// `it(e, promise)` calls some bodies make.
-const MAX_JS_BYTES = 5 * 1024 * 1024;
+// Its spans only record while a hidden debug mode is on (a Debug tab that
+// times BetterCampus for its developers). Otherwise every call pays for the
+// span lookup and a try/catch/finally that do nothing. Each wrapper becomes
+// `const e=/*@__PURE__*/at("id");{BODY}`, and the minifier below drops the
+// declaration wherever nothing reads `e`. Some bodies keep it for their
+// `it(e, promise)` calls, which hand the promise back untouched while
+// recording is off.
 
 // biome-ignore lint/suspicious/noExplicitAny: ESTree nodes are walked generically.
 type AnyNode = { type: string; start: number; end: number; [k: string]: any };
@@ -112,7 +174,8 @@ function stripProfiler(src: string, file: string) {
 		if (fail && stop) return `${init.callee.name}/${fail}/${stop}`;
 	};
 
-	const cuts: [number, number][] = [];
+	// [from, to, text]: replace src[from, to) with text.
+	const edits: [number, number, string][] = [];
 	const profilers = new Set<string>();
 	const stack: unknown[] = [ast];
 	while (stack.length) {
@@ -134,42 +197,73 @@ function stripProfiler(src: string, file: string) {
 			if (!names) continue;
 			const t = list[i + 1];
 			profilers.add(names);
-			cuts.push([t.start, t.block.start], [t.block.end, t.end]);
+			const start = list[i].declarations[0].init.start;
+			edits.push(
+				[start, start, "/*@__PURE__*/"],
+				[t.start, t.block.start, ""],
+				[t.block.end, t.end, ""],
+			);
 		}
 		for (const value of Object.values(n))
 			if (value && typeof value === "object") stack.push(value);
 	}
-	if (profilers.size !== 1)
-		throw new Error(
-			`${file}: expected one profiler, found ${[...profilers].join(", ") || "none"}`,
-		);
+	if (profilers.size > 1)
+		throw new Error(`${file}: expected one profiler, found ${[...profilers]}`);
+	if (!profilers.size) return src;
 
-	cuts.sort((a, b) => a[0] - b[0]);
+	edits.sort((a, b) => a[0] - b[0]);
 	let out = "";
 	let pos = 0;
-	for (const [from, to] of cuts) {
-		out += src.slice(pos, from);
+	for (const [from, to, text] of edits) {
+		out += src.slice(pos, from) + text;
 		pos = to;
 	}
 	out += src.slice(pos);
-	parse(out, { ecmaVersion: "latest", sourceType: "script" });
 	console.log(
-		`  ${file}: unwrapped ${cuts.length / 2} profiler spans (${[...profilers][0]})`,
+		`  ${file}: unwrapped ${edits.length / 3} profiler spans (${[...profilers][0]})`,
 	);
 	return out;
 }
 
+// Dead-code pass over every bundle. It removes the unused span ids above,
+// code the patches leave unreachable (after an early `return;`, behind
+// `!1&&`), and whatever only that code used, like the campaign card's 842 KB
+// inline image. Only passes that delete or fold code run: no mangling (the
+// bundles already are), no inlining and no merging of variables.
+const MINIFY: MinifyOptions = {
+	compress: {
+		defaults: false,
+		booleans: true,
+		conditionals: true,
+		dead_code: true,
+		evaluate: true,
+		if_return: true,
+		reduce_vars: true,
+		side_effects: true,
+		unused: true,
+		keep_classnames: true,
+		keep_fnames: true,
+	},
+	mangle: false,
+};
+
+// AMO's linter refuses to parse (and so refuses to sign) any JS file of 5 MiB
+// or more.
+const MAX_JS_BYTES = 5 * 1024 * 1024;
+const kib = (n: number) => `${(n / 1024).toFixed(0)} KiB`;
+
 for (const file of new Bun.Glob("**/*.js").scanSync(outDir)) {
 	const path = resolve(outDir, file);
-	if (Bun.file(path).size < MAX_JS_BYTES) continue;
-	const out = stripProfiler(await Bun.file(path).text(), file);
-	if (Buffer.byteLength(out) >= MAX_JS_BYTES)
-		throw new Error(`${file} is still over AMO's 5 MiB parse limit`);
-	await Bun.write(path, out);
+	const src = await Bun.file(path).text();
+	const { code } = await minify(stripProfiler(src, file), MINIFY);
+	if (!code) throw new Error(`${file}: minifier returned nothing`);
+	parse(code, { ecmaVersion: "latest", sourceType: "script" });
+	const size = Buffer.byteLength(code);
+	if (size >= MAX_JS_BYTES)
+		throw new Error(`${file} is over AMO's 5 MiB parse limit`);
+	await Bun.write(path, code);
+	console.log(`  ${file}: ${kib(Buffer.byteLength(src))} → ${kib(size)}`);
 }
-
-const manifestPath = resolve(outDir, "manifest.json");
-const manifest = await Bun.file(manifestPath).json();
 
 delete manifest.update_url;
 
@@ -186,32 +280,41 @@ if (build) {
 // runs fine as a non-persistent event page.
 manifest.background = { scripts: [manifest.background.service_worker] };
 
-// Content scripts that only serve the removed cloud/Pro features: calendar
-// sync, Stripe checkout, and the bridge that hands ext.bettercampus.com the
-// extension's settings, IndexedDB and Canvas tab.
-const unused = [
-	"content-scripts/googlecalendar.js",
-	"content-scripts/outlookcalendar.js",
-	"content-scripts/stripe.js",
-	"content-scripts/extension-bridge.js",
-];
-manifest.content_scripts = manifest.content_scripts.filter(
-	(cs: { js: string[] }) => !cs.js.some((js) => unused.includes(js)),
-);
-for (const f of unused) rmSync(resolve(outDir, f));
+// Our own scripts (src/), in the same isolated world as all.js.
+for (const [name, entry] of [
+	["bcx", "src/bcx/main.ts"],
+	["subframe", "src/subframe.ts"],
+]) {
+	const out = await Bun.build({
+		entrypoints: [resolve(root, entry)],
+		target: "browser",
+		format: "iife",
+		minify: true,
+	});
+	if (!out.success) throw new AggregateError(out.logs, `${entry} build failed`);
+	await Bun.write(
+		resolve(outDir, `content-scripts/${name}.js`),
+		out.outputs[0],
+	);
+}
 
-// Our own versions of the Pro features (src/bcx). Same isolated world as
-// all.js, so its patched controls can call globalThis.__bcx.
-const bcx = await Bun.build({
-	entrypoints: [resolve(root, "src/bcx/main.ts")],
-	target: "browser",
-	format: "iife",
+// all.js runs in the top frame only, followed by bcx.js, whose functions its
+// patched controls call through globalThis.__bcx. In subframes, all.js used
+// to initialize all of BetterCampus only to add a font and an anti-flicker
+// style; subframe.js does just that there (see src/subframe.ts).
+const allIndex = manifest.content_scripts.findIndex((cs: { js: string[] }) =>
+	cs.js.includes("content-scripts/all.js"),
+);
+const allEntry = manifest.content_scripts[allIndex];
+delete allEntry.all_frames;
+allEntry.js.push("content-scripts/bcx.js");
+manifest.content_scripts.splice(allIndex + 1, 0, {
+	matches: allEntry.matches,
+	exclude_matches: allEntry.exclude_matches,
+	all_frames: true,
+	run_at: allEntry.run_at,
+	js: ["content-scripts/subframe.js"],
 });
-if (!bcx.success) throw new AggregateError(bcx.logs, "src/bcx build failed");
-await Bun.write(resolve(outDir, "content-scripts/bcx.js"), bcx.outputs[0]);
-manifest.content_scripts
-	.find((cs: { js: string[] }) => cs.js.includes("content-scripts/all.js"))
-	.js.push("content-scripts/bcx.js");
 
 manifest.browser_specific_settings = {
 	gecko: {
@@ -236,10 +339,10 @@ await Bun.write(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
 await $`mkdir -p ${distDir}`;
 const xpi = resolve(distDir, `bettercampus-firefox-${manifest.version}.xpi`);
 rmSync(xpi, { force: true });
-await $`cd ${outDir} && zip -qr -X ${xpi} .`;
+await $`cd ${outDir} && zip -qr -X -9 ${xpi} .`;
 
 console.log(
-	`Ported ${basename(zip)} (v${manifest.version}), ${patches.length} patches`,
+	`Ported ${basename(zip)} (v${manifest.version}), ${patches.filter((p) => p.replace !== undefined).length} patches`,
 );
 console.log(`  unpacked: ${outDir}`);
-console.log(`  xpi:      ${xpi}`);
+console.log(`  xpi:      ${xpi} (${kib(Bun.file(xpi).size)})`);

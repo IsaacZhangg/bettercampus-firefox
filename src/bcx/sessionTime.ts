@@ -88,10 +88,13 @@ globalThis.__bcxSessionTime = {
 	at,
 };
 
-// Drop times whose session has since been removed.
-browser.storage.local.get([KEY, "overrides"]).then((stored) => {
+// Drop times whose session has since been removed. Their `overrides` can be
+// large, so it's only read when there are times to check against it.
+browser.storage.local.get(KEY).then(async (stored) => {
 	const saved = parse(stored[KEY]);
-	const sessions = (stored.overrides ?? {}) as Record<
+	if (!Object.keys(saved).length) return setTimes(saved);
+	const { overrides } = await browser.storage.local.get("overrides");
+	const sessions = (overrides ?? {}) as Record<
 		string,
 		{ isDeleted?: boolean } | undefined
 	>;

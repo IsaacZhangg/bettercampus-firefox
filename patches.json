@@ -161,6 +161,13 @@
     "why": "Theme menu: hide 'Upgrade' link when 0 free swaps left"
   },
   {
+    "group": "promos",
+    "file": "content-scripts/all.js",
+    "find": "children:(0,yDe.jsx)(gDe,{...t})",
+    "replace": "children:null",
+    "why": "Campaign popup card ('Make Canvas yours.'): render nothing. Campaigns never start (the background engine is skipped), and with the card unreferenced the minifier drops it and its 842 KB inline image."
+  },
+  {
     "group": "page",
     "file": "content-scripts/all.js",
     "find": "courseResolver:{matches:v2t,feature:new aie},fileAnnotationPopup:{matches:v2t,feature:new Dde},dashboardNotes:",
@@ -572,5 +579,49 @@
     "find": "async function Jo(e){const t=y(\"83lrudd4\");try{",
     "replace": "async function Jo(e){const t=y(\"83lrudd4\");try{return{data:null,error:{status:401,message:\"Not signed in\"},rewards:null};",
     "why": "Background copy of the backend API client (Jo): its only paths are account sync (encryption key, settings push, grade history). Answer locally with the 401 a signed-out request gets."
+  },
+  {
+    "group": "perf",
+    "file": "content-scripts/all.js",
+    "find": "const t=await async function(){const t=e.runtime.getURL(\"/content-scripts/all.css\");try{return await(await fetch(t)).text()}catch(r){return n.warn(`Failed to load styles @ ${t}. Did you forget to import the stylesheet in your entrypoint?`,r),\"\"}}();o.push(t.replaceAll(\":root\",\":host\"))",
+    "replace": "const t=await(Z.$css??=async function(){const t=e.runtime.getURL(\"/content-scripts/all.css\");try{return(await(await fetch(t)).text()).replaceAll(\":root\",\":host\")}catch(r){return Z.$css=void 0,n.warn(`Failed to load styles @ ${t}. Did you forget to import the stylesheet in your entrypoint?`,r),\"\"}}());o.push(t)",
+    "why": "Shadow-root UIs (Z, WXT's createShadowRootUi): fetch all.css (218 KB) and rewrite its :root rules once per page instead of on every mount; a failed fetch is retried by the next mount, as before."
+  },
+  {
+    "group": "perf",
+    "file": "content-scripts/all.js",
+    "find": "const{shadowCss:s,documentCss:i}=function(t){return{documentCss:Array.from(t.matchAll(G),t=>t[0]).join(\"\").trim(),shadowCss:t.replace(G,\"\").trim()}}(o.join(\"\\n\").trim())",
+    "replace": "const{shadowCss:s,documentCss:i}=(t=>(Z.$split??=new Map).get(t)??Z.$split.set(t,function(t){return{documentCss:Array.from(t.matchAll(G),t=>t[0]).join(\"\").trim(),shadowCss:t.replace(G,\"\").trim()}}(t)).get(t))(o.join(\"\\n\").trim())",
+    "why": "Shadow-root UIs: split the same stylesheet into its document (@property, @font-face) and shadow rules once per page. Each split regex-scans all of all.css, a few milliseconds per mount, and a Canvas page mounts many UIs."
+  },
+  {
+    "group": "subframe",
+    "file": "content-scripts/all.js",
+    "find": "const r=performance.now(),a=Kle();if(void 0,function(){const t=at(\"1xatgiol\");try{if(TDe||\"undefined\"==typeof document||!(\"fonts\"in document))return;TDe=!0;for(const{file:t,unicodeRange:n}of DDe)try{const r=new FontFace(\"Figtree\",`url(${e.runtime.getURL(t)}) format(\"woff2\")`,{style:\"normal\",weight:\"300 900\",display:\"swap\",unicodeRange:n});document.fonts.add(r)}catch{}}catch(n){throw ot(t),n}finally{st(t)}}(),window!==window.top)return a&&setTimeout(()=>{const t=at(\"jiabc4n4\");try{return a.remove()}catch(e){throw ot(t),e}finally{st(t)}},1500),void 0;",
+    "why": "all.js's subframe path: compute the anti-flicker style (Kle), register the Figtree font, then return, lifting that style after 1.5 s. src/subframe.ts does exactly this in subframes, where all.js no longer loads."
+  },
+  {
+    "group": "subframe",
+    "file": "content-scripts/all.js",
+    "find": "function Kle(t){const e=at(\"uo7517cm\");try{try{const t=$le();if(void 0,!t)return null;const e=(t?.theme?.custom_domain??[]).some(t=>{const e=at(\"6ge8hq10\");try{return window.location.origin.includes(t)}catch(n){throw ot(e),n}finally{st(e)}});if(void 0,!e)return null;let n=\"\";t?.theme?.theme_enabled&&t.theme?.bg&&(t?.theme?.sidebar?.color||t?.theme?.sidebar,n+=`body,#wrapper,#main { background-color: ${t.theme?.bg}!important; }`),!t?.theme?.theme_enabled&&t?.theme?.dark_mode&&(n+=\"body,#wrapper { background-color: #161616!important; }\");const r=document.createElement(\"style\");return r.textContent=n,document.documentElement.appendChild(r),function(t){const e=at(\"sa3fkx42\");try{if(\"canvas\"!==t?.lms_type)return;if(!1===t?.sidebar_enabled)return;if(\"custom\"===t?.header_layout)return;if(!document.getElementById(\"bettercampus-nav-suppression\")){const t=document.createElement(\"style\");t.id=Ole,t.textContent=Ble,document.documentElement.appendChild(t)}const e=t?.sidebar_width;if(\"number\"==typeof e&&Number.isFinite(e)&&!document.getElementById(\"bettercanvas-sidebar-width\")){const t=document.createElement(\"style\");t.id=Mle,t.textContent=`${Gle(e)}${Yle}`,document.documentElement.appendChild(t)}setTimeout(()=>{const t=at(\"7l3x4xu5\");try{if(Fle())return;qle(),document.getElementById(Mle)?.remove()}catch(e){throw ot(t),e}finally{st(t)}},Hle)}catch(n){throw ot(e),n}finally{st(e)}}(t?.theme),r}catch(n){return null}}catch(r){throw ot(e),r}finally{st(e)}}function _le(t){const e=at(\"1tkeujxm\");try{try{const e=localStorage.getItem(t);return e?JSON.parse(e):{}}catch(n){return{}}}catch(r){throw ot(e),r}finally{st(e)}}function $le(){const t=at(\"sxvqvbh7\");try{return{theme:_le(\"_bettercampus_theme_cache\")}}catch(e){throw ot(t),e}finally{st(t)}}",
+    "why": "Anti-flicker (Kle) and its theme-cache reader (_le, $le), mirrored by src/subframe.ts: antiFlicker, suppressNav, readCache."
+  },
+  {
+    "group": "subframe",
+    "file": "content-scripts/all.js",
+    "find": "var DDe=[{file:\"/fonts/figtree-latin.woff2\",unicodeRange:\"U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD\"},{file:\"/fonts/figtree-latin-ext.woff2\",unicodeRange:\"U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF\"}],TDe=!1;",
+    "why": "Figtree font files and unicode ranges (DDe), mirrored by src/subframe.ts: FONTS."
+  },
+  {
+    "group": "subframe",
+    "file": "content-scripts/all.js",
+    "find": "Jle=l(()=>{vt(),Mle=\"bettercanvas-sidebar-width\",zle={expanded:180,collapsed:86,hidden:0},Dle=t=>{const e=at(\"obec8tcc\");try{return zle[t]}catch(n){throw ot(e),n}finally{st(e)}},Tle=\"data-bc-sidebar-ready\",Ole=\"bettercampus-nav-suppression\",Ble=`\\n\\thtml:not([${Ple=\"data-bc-nav-restore\"}]) #header > *:not(bettercampus-element) {\\n\\t\\topacity: 0 !important;\\n\\t\\tpointer-events: none !important;\\n\\t}\\n`,Rle=()=>{const t=at(\"opgj93ap\");try{document.documentElement.setAttribute(Tle,\"\")}catch(e){throw ot(t),e}finally{st(t)}},qle=()=>{const t=at(\"hp9tkap7\");try{document.documentElement.setAttribute(Ple,\"\")}catch(e){throw ot(t),e}finally{st(t)}},Lle=()=>{const t=at(\"nmzb5986\");try{document.documentElement.removeAttribute(Ple)}catch(e){throw ot(t),e}finally{st(t)}},Fle=()=>{const t=at(\"8vqvtthc\");try{return document.documentElement.hasAttribute(Tle)}catch(e){throw ot(t),e}finally{st(t)}},Gle=t=>{const e=at(\"fenjgodd\");try{return`\\n\\t:root {\\n\\t\\t--bcsidebarwidth: ${t}px;\\n\\t}\\n\\n\\tbody > #nav-tray-portal > span > span {\\n\\t\\tleft: var(--bcsidebarwidth, 200px) !important;\\n\\t\\ttransition: left 0.5s cubic-bezier(0.25, 0.1, 0.25, 1.0) !important;\\n\\t}\\n\\n\\t#header {\\n\\t\\twidth: var(--bcsidebarwidth) !important;\\n\\t\\toverflow-x: hidden !important;\\n\\t\\ttransition: width 0.5s cubic-bezier(0.25, 0.1, 0.25, 1.0) !important;\\n\\t}\\n\\n\\t.tray-with-space-for-global-nav {\\n\\t\\tmargin-left: 0!important;\\n\\t}\\n\\n\\tbody.bettercampus-home-popup-open bettercanvas-sidebar::part(bettercanvas-sidebar-popup-btn) {\\n\\t\\topacity: 1!important;\\n\\t\\tbackground-color: var(--bcbackground-0, #fff)!important;\\n\\t}\\n\\n\\tbody.bettercampus-home-popup-open bettercanvas-sidebar::part(bettercanvas-sidebar-popup-btn-txt) {\\n\\t\\tcolor: var(--bctext-0, #273540)!important;\\n\\t}\\n\\n\\t@media print {\\n\\t\\t:root {\\n\\t\\t\\t--bcsidebarwidth: 0px !important;\\n\\t\\t}\\n\\t\\t#wrapper {\\n\\t\\t\\tmargin-left: 0 !important;\\n\\t\\t}\\n\\t\\t#header.ic-app-header {\\n\\t\\t\\tdisplay: none !important;\\n\\t\\t}\\n\\t}\\n`}catch(n){throw ot(e),n}finally{st(e)}},Yle=\"\\n\\t#wrapper {\\n\\t\\tmargin-left: var(--bcsidebarwidth) !important;\\n\\t\\tmax-width: 100% !important;\\n\\t}\\n\"});",
+    "why": "Sidebar ids, attributes and CSS the anti-flicker uses (Mle, Tle, Ole, Ble/Ple, qle, Fle, Gle, Yle), mirrored by src/subframe.ts."
+  },
+  {
+    "group": "subframe",
+    "file": "content-scripts/all.js",
+    "find": "hde=l(()=>{vt(),r$(),bVt(),Jle(),Hle=1500",
+    "why": "Nav restore delay (Hle = 1500 ms), mirrored by src/subframe.ts: LIFT_AFTER."
   }
 ]

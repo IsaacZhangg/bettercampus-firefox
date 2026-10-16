@@ -4,7 +4,7 @@ An unofficial Firefox port of the [BetterCampus (prev. BetterCanvas)](https://ch
 
 ## What's removed
 
-`patches.json` holds 82 string patches against the minified bundle. Each one has a `group` and a `why`.
+`patches.json` holds 85 string patches against the minified bundle, plus 5 anchors that patch nothing (group `subframe`, below). Each entry has a `group` and a `why`.
 
 | Group | Removes |
 | --- | --- |
@@ -16,8 +16,10 @@ An unofficial Firefox port of the [BetterCampus (prev. BetterCanvas)](https://ch
 | `bcx` | Hooks that hand some Pro-locked controls to our own implementations in `src/bcx/` (below). |
 | `telemetry` | PostHog usage analytics, sent straight to `us.i.posthog.com` from the background script, the page content script and the file viewer, plus the startup call that links the anonymous analytics ID to an account. Each of these first asks BetterCampus's own analytics consent check, which now always answers no, whatever the stored `anonymous_usage_data` setting says. |
 | `cloud` | Requests to `api.bettercampus.com` made without an account. Upstream's backend client sends them anyway, tagged with a persistent device ID: every To-Do edit (with the assignment title, course code, due date and status in plain text), class schedule edits (course name, code and meeting times) and To-Do lookups. Both copies of the client, in the page script and the background script, now answer as a signed-out request would, except for the public reads the community theme browser needs: theme lists, single themes, comments, slot limits and sticker palettes. |
+| `perf` | Work repeated for no change in result. Each shadow-root UI BetterCampus mounts re-fetched the 218 KB `all.css` and regex-split it into document and shadow rules, a few milliseconds of work per mount, and a Canvas page mounts many. Both now happen once per page. |
+| `subframe` | Nothing: these entries only pin the upstream code that `src/subframe.ts` mirrors (see [Load time](#load-time)), so the build fails if it changes. |
 
-The manifest also drops `googlecalendar.js`, `outlookcalendar.js` and `stripe.js`, which only served calendar sync and checkout. It also drops `extension-bridge.js`, which let pages on ext.bettercampus.com read the extension's settings and IndexedDB, change settings, and act in your Canvas tab.
+The manifest also drops `googlecalendar.js`, `outlookcalendar.js` and `stripe.js`, which only served calendar sync and checkout. It also drops `extension-bridge.js`, which let pages on ext.bettercampus.com read the extension's settings and IndexedDB, change settings, and act in your Canvas tab. The build also leaves out 5.9 MB of packaged files that nothing references: large illustrations, the referral avatars, the grades onboarding videos, a Chrome Web Store screenshot, old icons and a dark-mode stylesheet the bundle doesn't load.
 
 ## Our own versions of Pro features (`src/bcx/`)
 
@@ -32,7 +34,7 @@ These are written from scratch rather than unlocked. They have their own code an
 
 Our dialogs use the same theme variables as BetterCampus's own UI, so they follow dark mode and custom themes. When opened from the settings panel, they mount in the panel's portal. The page portal can't be used because the panel scales the page down into its preview.
 
-`bun port-to-firefox.ts` compiles `src/bcx/main.ts` into `content-scripts/bcx.js` and loads it after `all.js`. `bun run check` type-checks and lints it.
+`bun port-to-firefox.ts` compiles `src/bcx/main.ts` into a minified `content-scripts/bcx.js` and loads it after `all.js`. `bun run check` type-checks and lints it.
 
 ## Dark mode on Canvas's React pages (`src/bcx/darkTheme.ts`)
 
@@ -54,6 +56,27 @@ BetterCampus's dark mode is a fixed list of Canvas selectors. Canvas's newer Rea
   - Text colors that vanish against what they sit on fall back to the theme's text color, and so does Canvas's purple @mention.
   - Elements that bring their own readable color pair, like white-on-black labels, are left alone.
 
+## Load time
+
+BetterCampus injects `all.js` into every page you visit, so its cost lands on all your browsing, not just Canvas. The build cuts that cost in four ways. None of them changes a feature; the one thing that stops working is a hidden developer timing tool (see Profiler).
+
+- **Subframes.** `all.js` ran in every frame of every page, including ads, embeds and video players. Before its `main()` returned for a subframe, it initialized all of BetterCampus: React, its API schemas, the Tailwind class merger and every other module. In the measurements below that came to about 300 ms per frame, and in a subframe all of it served two small jobs. It registered the Figtree font, which the Canvas file viewer's UI uses, and, when the LMS frames one of its own pages, it painted a cached anti-flicker style for 1.5 s. `all.js` and `bcx.js` now load in the top frame only, and a 3 KB `subframe.js` (`src/subframe.ts`) does those two jobs in every frame. The `subframe` anchors in `patches.json` pin the upstream code it mirrors.
+- **Profiler.** BetterCampus wraps ~9k functions per bundle in a local profiler (`const e=at("id");try{…}catch(n){throw ot(e),n}finally{st(e)}`). Its spans only record while a hidden debug mode is on, but every call paid for them anyway. The build unwraps them all and drops the span ids nothing reads, so the hidden Debug tab no longer has anything to time.
+- **Dead code.** Terser then runs a pass over every bundle that only removes or folds code: no mangling or inlining. It drops what the patches leave unreachable and whatever only that code used, such as the file viewer's annotation toolbar and the campaign card's 842 KB inline image. `all.js` goes from 5.2 to 3.7 MiB, `background.js` from 429 to 364 KiB and `viewer.js` from 700 to 638 KiB.
+- **Repeated work.** The `perf` patches above. `bcx.js` is minified, only reads the large `overrides` object when saved session times need checking against it, and the dark-mode fix no longer scans stylesheets while dark mode and themes are off.
+
+Measured in headless Firefox 158 on a slow virtual machine, so the ratios matter more than the absolute times:
+
+| | Before | After | No extension |
+| --- | --- | --- | --- |
+| Page with 10 iframes, load | 3,970 ms | 244 ms | 73 ms |
+| Mock Canvas dashboard, BetterCampus UI mounted | 338 ms | 199 ms | |
+| Mock Canvas dashboard, DOMContentLoaded | 170 ms | 142 ms | 15 ms |
+| Plain page, DOMContentLoaded | 163 ms | 158 ms | 19 ms |
+| `.xpi` size | 11.0 MiB | 4.7 MiB | |
+
+What remains is `all.js` initializing in each top-level page, which its LMS detection and site-wide features (custom cursors, the shared components UI) need.
+
 ## Build
 
 ```sh
@@ -63,9 +86,9 @@ bun port-to-firefox.ts [path/to/chrome.zip]
 
 This repo doesn't include BetterCampus itself. Supply the extension's Chrome Web Store package as a `.zip`; the patches target version 9.8.15. The script uses the `*Chrome*.zip` in this directory unless you pass a path. It outputs `firefox/` (unpacked) and `dist/bettercampus-firefox-<version>.xpi`. It also does the Firefox manifest conversion: `background.scripts`, `browser_specific_settings.gecko`, and removing `update_url` and `_metadata/`.
 
-Patch anchors are minified code, so a new upstream version will likely break some of them. The script stops and names each patch whose anchor no longer matches exactly once; those need re-deriving against the new bundle. Prefer anchors on the stable 8-character `at("…")` instrumentation ids and string literals.
+Patch anchors are minified code, so a new upstream version will likely break some of them. The script stops and names each patch whose anchor no longer matches exactly once; those need re-deriving against the new bundle. A `subframe` anchor that stops matching means upstream changed what `all.js` does in subframes: update `src/subframe.ts` to match before the anchor. Prefer anchors on the stable 8-character `at("…")` instrumentation ids and string literals.
 
-AMO's linter refuses to parse any JS file of 5 MiB or more, which blocks signing, and the patched `all.js` is 5.19 MiB. For any file over the limit, the script parses it with acorn and removes the try/catch/finally around each of BetterCampus's ~9k local profiler spans (`const e=at("id");try{…}catch(n){throw ot(e),n}finally{st(e)}`). Those spans only record while a debug flag is on, so the code runs the same; `all.js` drops to 4.85 MiB. The build fails if a file is still over the limit. `bun run lint:ext` runs the same linter as AMO.
+AMO's linter refuses to parse any JS file of 5 MiB or more, which blocks signing, and the patched `all.js` is 5.19 MiB. The profiler and dead-code passes above bring it to 3.7 MiB, and the build fails if any file ends up over the limit. Those passes take most of the build's 20 seconds. `bun run lint:ext` runs the same linter as AMO.
 
 ## Install
 
