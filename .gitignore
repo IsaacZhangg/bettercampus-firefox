@@ -1,0 +1,6 @@
+node_modules/
+firefox/
+dist/
+.env
+*.zip
+.DS_Store
