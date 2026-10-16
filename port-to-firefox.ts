@@ -217,13 +217,13 @@ manifest.browser_specific_settings = {
 		// install-time host permissions (127) and storage.session (115).
 		strict_min_version: "140.0",
 		data_collection_permissions: {
-			// Account login, synced Canvas data, and PostHog analytics.
+			// Account login and synced Canvas data. No technicalAndInteraction:
+			// the telemetry patches stop all PostHog analytics.
 			required: [
 				"authenticationInfo",
 				"personallyIdentifyingInfo",
 				"websiteContent",
 			],
-			optional: ["technicalAndInteraction"],
 		},
 	},
 };

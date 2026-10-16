@@ -4,7 +4,7 @@ An unofficial Firefox port of the [BetterCampus (prev. BetterCanvas)](https://ch
 
 ## What's removed
 
-`patches.json` holds 80 string patches against the minified bundle. Each one has a `group` and a `why`.
+`patches.json` holds 84 string patches against the minified bundle. Each one has a `group` and a `why`.
 
 | Group | Removes |
 | --- | --- |
@@ -14,6 +14,7 @@ An unofficial Firefox port of the [BetterCampus (prev. BetterCanvas)](https://ch
 | `cleanup` | Leftovers found by rendering the build: cloud/AI widgets in the Widgets catalog, the Calendar Sync and Streaks settings, the AI Transparency row, the "Create free account" theme wall, the GPA history dialog's Upload Transcript tab (a cloud AI import), settings text that still mentioned calendar sync or a BetterCampus account, and background settings-sync and streak requests. |
 | `removals` | Fun widgets (the floating music/timer/dino/quote/breathe widgets and the Doge dashboard widget), file annotations (the PDF annotation layer in the Canvas file viewer and its settings), and auto-rotating themes (the header button and the Appearance section). |
 | `bcx` | Hooks that hand some Pro-locked controls to our own implementations in `src/bcx/` (below). |
+| `telemetry` | PostHog usage analytics, sent straight to `us.i.posthog.com` from the background script, the page content script and the file viewer, plus the startup call that links the anonymous analytics ID to an account. Nothing is sent, whatever the stored `anonymous_usage_data` setting says. |
 
 ## Our own versions of Pro features (`src/bcx/`)
 
@@ -89,7 +90,6 @@ To test without signing, open `about:debugging#/runtime/this-firefox`, click **L
 
 ## Known limitations
 
-- PostHog usage analytics are still sent.
 - The toolbar button does nothing on non-Canvas tabs, because it used to open the remote setup page. Visit your Canvas site and it is detected automatically, or set the URL under Other → Your Canvas URL.
 - Free plans still get one focus session per assignment ("Plan another focus session" keeps its Pro crown).
 - Planned-session reminders are still Pro-only, so a session's time doesn't trigger a notification.

@@ -558,5 +558,33 @@
     "find": "children:\"Planned at\"}),m&&(0,lLt.jsx)(vl,{className:\"size-3 text-yellow-400 fill-yellow-400\"})",
     "replace": "children:\"Planned at\"}),null",
     "why": "Focus-session row: drop the Pro crown on \"Planned at\" (its time comes from our picker now)."
+  },
+  {
+    "group": "telemetry",
+    "file": "background.js",
+    "find": "const r=y(\"5eloldal\");try{",
+    "replace": "const r=y(\"5eloldal\");try{return;",
+    "why": "PostHog capture (cs): never POST to us.i.posthog.com. Covers extension_installed/updated/first_run, storage_migration_completed, referral_code_captured and settings_push_aborted, and the analytics_id it would mint on first send."
+  },
+  {
+    "group": "telemetry",
+    "file": "content-scripts/all.js",
+    "find": "const r=at(\"5eloldal\");try{",
+    "replace": "const r=at(\"5eloldal\");try{return;",
+    "why": "PostHog capture (I2): never POST to us.i.posthog.com. All ~90 call sites (script_loaded, app_used, feature_used, widget/theme/todo events, paywall and upgrade views) and the trackEvent adapter (JRe -> I2) go through it."
+  },
+  {
+    "group": "telemetry",
+    "file": "content-scripts/viewer.js",
+    "find": "const r=g(\"5eloldal\");try{",
+    "replace": "const r=g(\"5eloldal\");try{return;",
+    "why": "PostHog capture in the Canvas file viewer (xh): never POST to us.i.posthog.com."
+  },
+  {
+    "group": "telemetry",
+    "file": "content-scripts/all.js",
+    "find": "const t=at(\"qpvrv93d\");try{",
+    "replace": "const t=at(\"qpvrv93d\");try{return;",
+    "why": "Startup /users/merge-analytics call: never send the anonymous analytics_id to api.bettercampus.com to link it to an account."
   }
 ]
