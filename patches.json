@@ -558,5 +558,19 @@
     "find": "const e=g(\"9popk2gd\");try{",
     "replace": "const e=g(\"9popk2gd\");try{return!1;",
     "why": "Analytics consent check in the Canvas file viewer (kh): always off, so PostHog capture (xh) never POSTs to us.i.posthog.com. Its only callers are annotation events, which the file-annotations removal already stops; this keeps telemetry off if annotations come back."
+  },
+  {
+    "group": "cloud",
+    "file": "content-scripts/all.js",
+    "find": "async function _p(t){const e=at(\"83lrudd4\");try{",
+    "replace": "async function _p(t){const e=at(\"83lrudd4\");try{if(![\"/themes\",\"/themes/:code\",\"/themes/comments\",\"/themes/check-limits\",\"/sticker-palette\"].includes(t.path))return{data:null,error:{status:401,message:\"Not signed in\"},rewards:null};",
+    "why": "Backend API client (_p): sends with allowAnonymous, so without an account it still sends to api.bettercampus.com under a persistent X-Device-ID. That includes every to-do edit (/overrides/update, with plaintext assignment title, course code, due date and status), class schedule edits (/schedules/sync: course name, code, periods) and to-do lookups (/overrides). Answer every path locally with the 401 a signed-out request gets, except the public GETs the community theme browser reads."
+  },
+  {
+    "group": "cloud",
+    "file": "background.js",
+    "find": "async function Jo(e){const t=y(\"83lrudd4\");try{",
+    "replace": "async function Jo(e){const t=y(\"83lrudd4\");try{return{data:null,error:{status:401,message:\"Not signed in\"},rewards:null};",
+    "why": "Background copy of the backend API client (Jo): its only paths are account sync (encryption key, settings push, grade history). Answer locally with the 401 a signed-out request gets."
   }
 ]

@@ -4,7 +4,7 @@ An unofficial Firefox port of the [BetterCampus (prev. BetterCanvas)](https://ch
 
 ## What's removed
 
-`patches.json` holds 80 string patches against the minified bundle. Each one has a `group` and a `why`.
+`patches.json` holds 82 string patches against the minified bundle. Each one has a `group` and a `why`.
 
 | Group | Removes |
 | --- | --- |
@@ -15,6 +15,9 @@ An unofficial Firefox port of the [BetterCampus (prev. BetterCanvas)](https://ch
 | `removals` | Fun widgets (the floating music/timer/dino/quote/breathe widgets and the Doge dashboard widget), file annotations (the PDF annotation layer in the Canvas file viewer and its settings), and auto-rotating themes (the header button and the Appearance section). |
 | `bcx` | Hooks that hand some Pro-locked controls to our own implementations in `src/bcx/` (below). |
 | `telemetry` | PostHog usage analytics, sent straight to `us.i.posthog.com` from the background script, the page content script and the file viewer, plus the startup call that links the anonymous analytics ID to an account. Each of these first asks BetterCampus's own analytics consent check, which now always answers no, whatever the stored `anonymous_usage_data` setting says. |
+| `cloud` | Requests to `api.bettercampus.com` made without an account. Upstream's backend client sends them anyway, tagged with a persistent device ID: every To-Do edit (with the assignment title, course code, due date and status in plain text), class schedule edits (course name, code and meeting times) and To-Do lookups. Both copies of the client, in the page script and the background script, now answer as a signed-out request would, except for the public reads the community theme browser needs: theme lists, single themes, comments, slot limits and sticker palettes. |
+
+The manifest also drops `googlecalendar.js`, `outlookcalendar.js` and `stripe.js`, which only served calendar sync and checkout. It also drops `extension-bridge.js`, which let pages on ext.bettercampus.com read the extension's settings and IndexedDB, change settings, and act in your Canvas tab.
 
 ## Our own versions of Pro features (`src/bcx/`)
 
@@ -30,8 +33,6 @@ These are written from scratch rather than unlocked. They have their own code an
 Our dialogs use the same theme variables as BetterCampus's own UI, so they follow dark mode and custom themes. When opened from the settings panel, they mount in the panel's portal. The page portal can't be used because the panel scales the page down into its preview.
 
 `bun port-to-firefox.ts` compiles `src/bcx/main.ts` into `content-scripts/bcx.js` and loads it after `all.js`. `bun run check` type-checks and lints it.
-
-The manifest also drops `googlecalendar.js`, `outlookcalendar.js` and `stripe.js`, which only served calendar sync and checkout.
 
 ## Dark mode on Canvas's React pages (`src/bcx/darkTheme.ts`)
 

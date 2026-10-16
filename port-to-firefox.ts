@@ -186,11 +186,14 @@ if (build) {
 // runs fine as a non-persistent event page.
 manifest.background = { scripts: [manifest.background.service_worker] };
 
-// Calendar-sync and Stripe checkout helpers only serve the removed cloud/Pro features.
+// Content scripts that only serve the removed cloud/Pro features: calendar
+// sync, Stripe checkout, and the bridge that hands ext.bettercampus.com the
+// extension's settings, IndexedDB and Canvas tab.
 const unused = [
 	"content-scripts/googlecalendar.js",
 	"content-scripts/outlookcalendar.js",
 	"content-scripts/stripe.js",
+	"content-scripts/extension-bridge.js",
 ];
 manifest.content_scripts = manifest.content_scripts.filter(
 	(cs: { js: string[] }) => !cs.js.some((js) => unused.includes(js)),
