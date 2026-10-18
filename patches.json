@@ -595,6 +595,20 @@
     "why": "Shadow-root UIs: split the same stylesheet into its document (@property, @font-face) and shadow rules once per page. Each split regex-scans all of all.css, a few milliseconds per mount, and a Canvas page mounts many UIs."
   },
   {
+    "group": "fixes",
+    "file": "content-scripts/all.js",
+    "find": "opacity:h?.5:1},m=t.code||t.default;",
+    "replace": "opacity:h?.5:1},m=(t.name&&t.name!==t.originalName?t.name:\"\")||t.code||t.default;",
+    "why": "Sidebar course list: label a course with the name you gave it in the card editor (Edit card > Name), as the dashboard card does, instead of always its code. Courses you haven't renamed keep showing their code. 'Renamed' is upstream's own test (name set and different from the LMS's original name, as in applyCardText)."
+  },
+  {
+    "group": "fixes",
+    "file": "content-scripts/all.js",
+    "find": "t?(await Qm({pending_hide_logo_confirmation:!0}),e.runtime.sendMessage({action:\"SHARED_COMPONENT_REQUEST\",payload:{component:\"puzzleIconGuide\",active:!0}})):await j_({hide_bettercanvas_logo:!1,pending_hide_logo_confirmation:!1})",
+    "replace": "await j_({hide_bettercanvas_logo:t,pending_hide_logo_confirmation:!1})",
+    "why": "Settings > Sidebar > Hide BetterCampus Logo: apply the switch right away. Upstream left the switch off, marked the hide as pending and opened a guide (with a Chrome screenshot) asking for a click on the BetterCampus toolbar icon; only that click hid the button, and closing the guide cancelled it. With the button hidden, the menu still opens from the toolbar button on a Canvas tab and from the search bar's 'Open BetterCampus'."
+  },
+  {
     "group": "subframe",
     "file": "content-scripts/all.js",
     "find": "const r=performance.now(),a=Kle();if(void 0,function(){const t=at(\"1xatgiol\");try{if(TDe||\"undefined\"==typeof document||!(\"fonts\"in document))return;TDe=!0;for(const{file:t,unicodeRange:n}of DDe)try{const r=new FontFace(\"Figtree\",`url(${e.runtime.getURL(t)}) format(\"woff2\")`,{style:\"normal\",weight:\"300 900\",display:\"swap\",unicodeRange:n});document.fonts.add(r)}catch{}}catch(n){throw ot(t),n}finally{st(t)}}(),window!==window.top)return a&&setTimeout(()=>{const t=at(\"jiabc4n4\");try{return a.remove()}catch(e){throw ot(t),e}finally{st(t)}},1500),void 0;",
