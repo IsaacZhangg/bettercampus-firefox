@@ -6,3 +6,4 @@ import "./todoRange";
 import "./sessionTime";
 import "./darkTheme";
 import "./darkPreset";
+import "./announcements";

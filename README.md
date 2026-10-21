@@ -73,6 +73,18 @@ BetterCampus's dark mode is a fixed list of Canvas selectors. Canvas's newer Rea
   - Elements that bring their own readable color pair, like white-on-black labels, are left alone.
 - **Dashboard card titles** in a course color too dark for a dark card get lighter, in the same hue, until they reach 4.5:1. Each pass reads the course color again, so a recolored course is judged by its new color.
 
+## Checked-off announcements (`src/bcx/announcements.ts`)
+
+Checking off an announcement in the To-Do list's announcements tab only added it to BetterCampus's local `todo_read` list. Canvas still counted it as unread, so the badge on the course card's announcements icon kept counting it until you opened the announcement on Canvas.
+
+Checking one off now also marks it read on Canvas, and unchecking it marks it unread again. The course card's badge changes right away and hides at zero. If Canvas already had the announcement that way (you'd read it on Canvas, say), nothing is sent and the badge stays as it is.
+
+- **Requests.** A `GET` of the announcement for its read state, then `PUT` or `DELETE` on `/api/v1/courses/<course>/discussion_topics/<id>/read`, from your Canvas tab with your session, the same way BetterCampus already saves planner completions.
+- **What triggers it.** Their checkbox stores only the announcement's id, and Canvas's API also needs the course. The module notes both from the row you click, which links to `/courses/<course>/discussion_topics/<id>`. It acts only when `todo_read` then changes for that announcement. Other open Canvas tabs, a settings restore or import, and Reset All Preferences don't change anything on Canvas. Other dashboard tabs show the new count after a reload.
+- **No patch.** It watches the click and storage instead of hooking the bundle, so it doesn't depend on upstream's minified names.
+
+Announcements you checked off before this build are still unread on Canvas. Uncheck and recheck one to send it, or open it on Canvas.
+
 ## Settings backup (`src/bcx/backup.ts`, `src/options/`)
 
 Firefox deletes all of an add-on's storage when the add-on is removed: on uninstall, and at every restart for a copy loaded from `about:debugging`. Installing a new build over the old one counts as an update and keeps everything. Removing it first used to reset every setting.
