@@ -1,0 +1,168 @@
+# Ports each new BetterCampus release from the Chrome Web Store, signs it on
+# AMO and attaches the signed .xpi to the run, then opens an issue to say it's
+# ready. When a release can't be ported without a human, it opens an issue
+# listing what to fix instead. See README → Automatic updates.
+name: Port upstream release
+
+on:
+  schedule:
+    - cron: "41 8 * * *"
+  # A hand-finished port records its version in upstream.json; sign it.
+  push:
+    branches: [main]
+    paths: [upstream.json]
+  workflow_dispatch:
+    inputs:
+      build:
+        description: Fourth version part, to sign a rebuild of a version already signed (2 makes 9.9.1.2)
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: port-upstream
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  port:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+      BUILD: ${{ inputs.build }}
+      OWNER: ${{ github.repository_owner }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.4.3
+      - run: bun install --frozen-lockfile
+
+      # Each signed version gets a v<version> tag, so a version is only
+      # signed once.
+      - name: Check the Chrome Web Store
+        id: upstream
+        run: |
+          info=$(bun scripts/upstream.ts)
+          echo "$info"
+          version=$(jq -r .version <<<"$info")
+          release=$version${BUILD:+.$BUILD}
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "release=$release" >> "$GITHUB_OUTPUT"
+          if git ls-remote --exit-code --tags origin "refs/tags/v$release" >/dev/null; then
+            echo "v$release is already signed."
+          else
+            echo "todo=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download it
+        id: zip
+        if: steps.upstream.outputs.todo
+        run: echo "zip=$(bun scripts/upstream.ts --download "$RUNNER_TEMP" | jq -r .zip)" >> "$GITHUB_OUTPUT"
+
+      - name: Port it
+        id: port
+        if: steps.zip.outputs.zip
+        env:
+          ZIP: ${{ steps.zip.outputs.zip }}
+        run: bun port-to-firefox.ts --update-patches "$ZIP" 2>&1 | tee "$RUNNER_TEMP/port.log"
+
+      - name: Lint it like AMO
+        if: steps.port.outcome == 'success'
+        run: bun run lint:ext
+
+      - name: Sign it on AMO
+        id: sign
+        if: steps.port.outcome == 'success'
+        env:
+          WEB_EXT_API_KEY: ${{ secrets.WEB_EXT_API_KEY || secrets.AMO_JWT_ISSUER }}
+          WEB_EXT_API_SECRET: ${{ secrets.WEB_EXT_API_SECRET || secrets.AMO_JWT_SECRET }}
+        run: |
+          if [ -z "$WEB_EXT_API_KEY" ] || [ -z "$WEB_EXT_API_SECRET" ]; then
+            echo "::error::Add your AMO API credentials as the WEB_EXT_API_KEY and WEB_EXT_API_SECRET repository secrets."
+            exit 1
+          fi
+          bun x web-ext sign --source-dir firefox --artifacts-dir signed --channel unlisted
+
+      - name: Attach the signed add-on
+        id: artifact
+        if: steps.sign.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: bettercampus-firefox-${{ steps.upstream.outputs.release }}
+          path: signed/*.xpi
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Record the port
+        if: steps.artifact.outcome == 'success'
+        env:
+          VERSION: ${{ steps.upstream.outputs.version }}
+          RELEASE: ${{ steps.upstream.outputs.release }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add patches.json upstream.json
+          refs=("v$RELEASE")
+          if ! git diff --cached --quiet; then
+            moved=$(grep '^    #' "$RUNNER_TEMP/port.log" | sed 's/^    //' || true)
+            git commit -m "Port BetterCampus $VERSION" -m "Anchors moved to upstream's renamed identifiers:" -m "$moved"
+            git pull --rebase origin "$GITHUB_REF_NAME"
+            refs+=("HEAD:$GITHUB_REF_NAME")
+          fi
+          git tag "v$RELEASE"
+          git push --atomic origin "${refs[@]}"
+
+      - name: Say it's ready
+        if: steps.artifact.outcome == 'success'
+        env:
+          RELEASE: ${{ steps.upstream.outputs.release }}
+          ARTIFACT_URL: ${{ steps.artifact.outputs.artifact-url }}
+        run: |
+          gh issue create --title "BetterCampus $RELEASE is ready to install" --body "@$OWNER The signed add-on is attached to [this run]($RUN_URL): [download it]($ARTIFACT_URL). GitHub keeps it for 90 days and delivers it zipped.
+
+          To install it, unzip the download, then in Firefox open \`about:addons\` → ⚙ → **Install Add-on From File…** and pick the \`.xpi\`. It replaces the installed version and keeps your settings.
+
+          Close this issue once it's installed."
+
+      # One open issue per version; later runs update it rather than add more.
+      - name: Say what needs a human
+        if: failure() && steps.upstream.outputs.release
+        env:
+          VERSION: ${{ steps.upstream.outputs.version }}
+          RELEASE: ${{ steps.upstream.outputs.release }}
+          PORT: ${{ steps.port.outcome }}
+        run: |
+          title="Porting BetterCampus $RELEASE needs attention"
+          {
+            echo "@$OWNER The automatic port of BetterCampus $VERSION stopped in [this run]($RUN_URL)."
+            echo
+            if [ "$PORT" = failure ]; then
+              report=$(sed -n '/needs [0-9]* fixes/,$p' "$RUNNER_TEMP/port.log")
+              echo '```'
+              head -c 55000 <<<"${report:-$(tail -n 60 "$RUNNER_TEMP/port.log")}"
+              echo '```'
+              echo
+              echo "To port it:"
+              echo
+              echo "1. \`bun scripts/upstream.ts --download\` saves the release as \`BetterCampus-$VERSION-Chrome.zip\`."
+              echo "2. \`bun port-to-firefox.ts --update-patches BetterCampus-$VERSION-Chrome.zip\` moves every anchor it can to the new names in patches.json and lists the rest again."
+              echo "3. Fix those, then repeat step 2 until it succeeds. It then records $VERSION in upstream.json."
+              echo "4. \`bun run check\`, commit, and push to main. This workflow then signs it."
+            else
+              echo "The port itself worked; the run's log shows which later step failed and why."
+            fi
+          } > "$RUNNER_TEMP/issue.md"
+          number=$(gh issue list --state open --search "in:title \"$title\"" --json number,title --jq ".[] | select(.title == \"$title\") | .number" | head -n1)
+          if [ -n "$number" ]; then
+            gh issue edit "$number" --body-file "$RUNNER_TEMP/issue.md"
+          else
+            gh issue create --title "$title" --body-file "$RUNNER_TEMP/issue.md"
+          fi

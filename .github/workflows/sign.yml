@@ -1,9 +1,9 @@
 name: Sign release
 
 # Signs a release's build with AMO (unlisted) and swaps the unsigned .xpi for
-# the signed one. CI can't build the extension itself: BetterCampus's own
-# package isn't in this repo, so `bun run release` builds locally and attaches
-# bettercampus-firefox-<version>.xpi to a v<version> release.
+# the signed one. `bun run release` builds locally and attaches
+# bettercampus-firefox-<version>.xpi to a v<version> release. (New upstream
+# versions are built, signed and delivered in CI by port-upstream.yml.)
 
 on:
   release:
@@ -56,11 +56,11 @@ jobs:
 
       - name: Sign with AMO
         env:
-          WEB_EXT_API_KEY: ${{ secrets.AMO_JWT_ISSUER }}
-          WEB_EXT_API_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+          WEB_EXT_API_KEY: ${{ secrets.WEB_EXT_API_KEY || secrets.AMO_JWT_ISSUER }}
+          WEB_EXT_API_SECRET: ${{ secrets.WEB_EXT_API_SECRET || secrets.AMO_JWT_SECRET }}
         run: |
-          : "${WEB_EXT_API_KEY:?Add the AMO_JWT_ISSUER repository secret}"
-          : "${WEB_EXT_API_SECRET:?Add the AMO_JWT_SECRET repository secret}"
+          : "${WEB_EXT_API_KEY:?Add the WEB_EXT_API_KEY repository secret}"
+          : "${WEB_EXT_API_SECRET:?Add the WEB_EXT_API_SECRET repository secret}"
           bun run sign
 
       # web-ext names the signed file <hash>-<version>.xpi.

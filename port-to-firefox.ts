@@ -1,16 +1,23 @@
 #!/usr/bin/env bun
 // Converts the BetterCampus Chrome Web Store zip into a stripped-down Firefox MV3 build.
-// Usage: bun port-to-firefox.ts [path/to/chrome.zip]
+// Usage: bun port-to-firefox.ts [--update-patches] [path/to/chrome.zip]
+//
+// --update-patches writes anchors that only matched under renamed identifiers
+// back to patches.json and, when the whole port succeeds, records the zip's
+// version in upstream.json.
 
 import { existsSync, readdirSync, rmSync } from "node:fs";
 import { basename, resolve } from "node:path";
 import { parse } from "acorn";
 import { $ } from "bun";
 import { type MinifyOptions, minify } from "terser";
+import { applyPatch, describe, type Patch } from "./scripts/patch";
 
 const root = import.meta.dir;
+const args = process.argv.slice(2);
+const updatePatches = args.includes("--update-patches");
 const zip = resolve(
-	process.argv[2] ??
+	args.find((a) => !a.startsWith("--")) ??
 		readdirSync(root).find((f) => f.endsWith(".zip") && f.includes("Chrome")) ??
 		"",
 );
@@ -25,40 +32,85 @@ await $`unzip -q ${zip} -d ${outDir}`;
 // Chrome Web Store signature data; meaningless (and flagged by the AMO linter) in Firefox.
 rmSync(resolve(outDir, "_metadata"), { recursive: true, force: true });
 
+const manifestPath = resolve(outDir, "manifest.json");
+const manifest = await Bun.file(manifestPath).json();
+const upstreamPath = resolve(root, "upstream.json");
+const upstream = await Bun.file(upstreamPath).json();
+console.log(
+	`Porting ${basename(zip)} (v${manifest.version}; patches.json is for v${upstream.version})`,
+);
+
+// Everything that needs a human, collected so one run reports all of it.
+const problems: string[] = [];
+
+// Upstream surface we've reviewed, listed in upstream.json. A new manifest
+// key, permission, content script or network host stops the build, so an
+// automatic port can't ship a new bridge to bettercampus.com, a new
+// permission or a new analytics service unseen. Review it, then list it there
+// (or strip it here).
+const reviewed: Record<string, string[]> = upstream.reviewed;
+const unreviewed = (kind: string, items: Iterable<string>, list: string[]) => {
+	for (const item of new Set(items))
+		if (!list.includes(item))
+			problems.push(
+				`New ${kind} ${item}: review it, then list it in upstream.json`,
+			);
+};
+unreviewed("manifest key", Object.keys(manifest), reviewed.manifest);
+unreviewed(
+	"permission",
+	[...(manifest.permissions ?? []), ...(manifest.host_permissions ?? [])],
+	reviewed.permissions,
+);
+
 // Strip AI study tools, login/Pro upsells, promos, and cloud app pages. Every
 // anchor must match exactly once, so a new upstream version fails loudly
-// instead of silently skipping a patch. An entry without `replace` only pins
-// upstream code that src/ mirrors.
-type Patch = {
-	group: string;
-	file: string;
-	find: string;
-	replace?: string;
-	why: string;
-};
+// instead of silently skipping a patch. An anchor that matches only under
+// renamed minified identifiers is moved to the new names (scripts/patch.ts).
+// An entry without `replace` only pins upstream code that src/ mirrors.
 const patches: Patch[] = await Bun.file(resolve(root, "patches.json")).json();
+const moved: string[] = [];
+const fragile: string[] = [];
 for (const [file, list] of Map.groupBy(patches, (p) => p.file)) {
 	const path = resolve(outDir, file);
 	let src = await Bun.file(path).text();
-	for (const { group, find, replace, why } of list) {
-		const hits = src.split(find).length - 1;
-		if (hits !== 1)
-			throw new Error(
-				`[${group}] ${file}: anchor matched ${hits} times (${why})`,
+	for (const patch of list) {
+		const i = patches.indexOf(patch);
+		const applied = applyPatch(src, patch);
+		if (typeof applied === "string") {
+			const find =
+				patch.find.length > 160 ? `${patch.find.slice(0, 160)}…` : patch.find;
+			problems.push(
+				`Patch #${i} [${patch.group}] ${file}: ${applied}. Re-derive it.\n    find: ${find}\n    why:  ${patch.why}`,
 			);
-		if (replace !== undefined) src = src.replace(find, () => replace);
+			continue;
+		}
+		src = applied.src;
+		patches[i] = applied.patch;
+		if (applied.renames.size)
+			moved.push(`#${i} [${patch.group}] ${describe(applied.renames)}`);
+		if (applied.fragile) fragile.push(`#${i} [${patch.group}]`);
 	}
 	await Bun.write(path, src);
 }
-
-const manifestPath = resolve(outDir, "manifest.json");
-const manifest = await Bun.file(manifestPath).json();
+if (fragile.length)
+	console.warn(
+		`  Warning: these anchors would match more than once once upstream renames their minified names, so lengthen them: ${fragile.join(", ")}`,
+	);
+if (moved.length) {
+	console.log(`  ${moved.length} anchors matched under renamed identifiers:`);
+	for (const line of moved) console.log(`    ${line}`);
+	if (updatePatches)
+		await Bun.write(
+			resolve(root, "patches.json"),
+			`${JSON.stringify(patches, null, 2)}\n`,
+		);
+}
 
 // Content scripts that only serve the removed cloud/Pro features: calendar
 // sync, Stripe checkout, the bridge that hands ext.bettercampus.com the
-// extension's settings, IndexedDB and Canvas tab, and the one that lets
-// app.bettercampus.com sign the extension in (login codes, logout, calendar
-// connect).
+// extension's settings, IndexedDB and Canvas tab, and the one that relays
+// app.bettercampus.com's sign-in, sign-out and calendar connection.
 const unused = [
 	"content-scripts/googlecalendar.js",
 	"content-scripts/outlookcalendar.js",
@@ -69,7 +121,47 @@ const unused = [
 manifest.content_scripts = manifest.content_scripts.filter(
 	(cs: { js: string[] }) => !cs.js.some((js) => unused.includes(js)),
 );
-for (const f of unused) rmSync(resolve(outDir, f));
+for (const f of unused) rmSync(resolve(outDir, f), { force: true });
+unreviewed(
+	"content script",
+	manifest.content_scripts.flatMap((cs: { js?: string[]; css?: string[] }) => [
+		...(cs.js ?? []),
+		...(cs.css ?? []),
+	]),
+	reviewed.contentScripts,
+);
+
+// Through 9.8.15 upstream ran all.js in every frame, only to add a font and
+// an anti-flicker style there, and this port did those two jobs with a small
+// subframe.js instead (see git history). 9.9.1 runs it in the top frame only.
+if (
+	manifest.content_scripts.some(
+		(cs: { js: string[]; all_frames?: boolean }) =>
+			cs.all_frames && cs.js.includes("content-scripts/all.js"),
+	)
+)
+	problems.push("all.js runs in subframes again: check what it does there");
+
+// Hosts the shipped files name. Most are links and docs; a new one can be a
+// new backend or analytics endpoint.
+const hosts = new Set<string>();
+for (const file of new Bun.Glob("**/*.{js,css,html,json}").scanSync(outDir))
+	for (const [, host] of (
+		await Bun.file(resolve(outDir, file)).text()
+	).matchAll(/\b(?:https?|wss?):\/\/([a-z0-9-]+(?:\.[a-z0-9-]+)+)/gi))
+		hosts.add(host.toLowerCase());
+unreviewed("host", [...hosts].sort(), reviewed.hosts);
+
+if (problems.length) {
+	console.error(
+		`\nv${manifest.version} needs ${problems.length} fixes before it can ship:\n\n${problems.map((p) => `- ${p}`).join("\n")}`,
+	);
+	process.exit(1);
+}
+if (updatePatches && upstream.version !== manifest.version) {
+	upstream.version = manifest.version;
+	await Bun.write(upstreamPath, `${JSON.stringify(upstream, null, 2)}\n`);
+}
 
 // Packaged files nothing references (5.9 MB): large illustrations, the
 // referral avatars, the grades onboarding videos, a Chrome Web Store
@@ -304,15 +396,11 @@ await Bun.write(
 );
 manifest.options_ui = { page: "options/options.html", open_in_tab: true };
 
-// bcx.js runs right after all.js, whose patched controls call its functions
-// through globalThis.__bcx. Upstream runs all.js in the top frame only (since
-// 9.9.1); a version that runs it in subframes again needs checking for what it
-// does there.
-const allEntry = manifest.content_scripts.find((cs: { js: string[] }) =>
-	cs.js.includes("content-scripts/all.js"),
-);
-if (allEntry.all_frames) throw new Error("all.js runs in subframes again");
-allEntry.js.push("content-scripts/bcx.js");
+// all.js runs in the top frame only, followed by bcx.js, whose functions its
+// patched controls call through globalThis.__bcx.
+manifest.content_scripts
+	.find((cs: { js: string[] }) => cs.js.includes("content-scripts/all.js"))
+	.js.push("content-scripts/bcx.js");
 
 manifest.browser_specific_settings = {
 	gecko: {

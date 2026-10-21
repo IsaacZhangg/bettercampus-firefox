@@ -4,11 +4,12 @@
 	"type": "module",
 	"scripts": {
 		"build": "bun port-to-firefox.ts",
+		"upstream": "bun scripts/upstream.ts",
 		"lint:ext": "web-ext lint --source-dir firefox",
 		"sign": "web-ext sign --source-dir firefox --artifacts-dir dist --channel unlisted",
 		"sign:1p": "op run --env-file=amo.env -- bun run sign",
 		"release": "bun release.ts",
-		"check": "tsc --noEmit && biome check src port-to-firefox.ts release.ts"
+		"check": "tsc --noEmit && biome check src scripts port-to-firefox.ts release.ts && bun scripts/check-patches.ts"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.2.4",

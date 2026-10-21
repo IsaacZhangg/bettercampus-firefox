@@ -4,20 +4,20 @@
     "file": "content-scripts/all.js",
     "find": "Z=ect(X?.reason)",
     "replace": "Z=!0",
-    "why": "Force the shell's built-in offline/blocked mode: local 'Edit Canvas' panel (wCe->oot offline) renders without a remote rect, and effect 6wj9afr8 rewrites any non-popup page to popup:themes on open."
+    "why": "Force the shell's built-in offline/blocked mode: local 'Edit Canvas' panel (wCe->oot offline) renders without a remote rect, and effect chdztu9p rewrites any non-popup page to popup:themes on open."
   },
   {
     "group": "menu",
     "file": "content-scripts/all.js",
-    "find": "children:[o&&(0,jZt.jsx)(c8,{",
-    "replace": "children:[!1&&(0,jZt.jsx)(c8,{",
+    "find": "children:[o&&(0,jZt.jsx)(c8,{ref:Ft,src:i,isFullscreen:",
+    "replace": "children:[!1&&(0,jZt.jsx)(c8,{ref:Ft,src:i,isFullscreen:",
     "why": "Never mount (or prewarm) the remote ext.bettercampus.com/core/hibernate iframe that hosts hub/planner/study/login/upgrade."
   },
   {
     "group": "menu",
     "file": "content-scripts/all.js",
-    "find": "verdict:X,",
-    "replace": "verdict:null,",
+    "find": "verdict:X,onAcknowledge:()=>",
+    "replace": "verdict:null,onAcknowledge:()=>",
     "why": "Suppress the 'This page is blocking BetterCampus / pages unreachable' dialog that would otherwise appear from a stored or live verdict."
   },
   {
@@ -37,15 +37,15 @@
   {
     "group": "menu",
     "file": "content-scripts/all.js",
-    "find": "wit=async t=>{const e=rt(\"03zsvda5\");try{await eJt(),",
-    "replace": "wit=async t=>{const e=rt(\"03zsvda5\");try{return;await eJt(),",
+    "find": "wit=async t=>{const e=rt(\"03zsvda5\");try{await eJt(),window",
+    "replace": "wit=async t=>{const e=rt(\"03zsvda5\");try{return;await eJt(),window",
     "why": "openEmbeddedAppEphemeral is only used for app:login / app:upgrade (sign-in, sign-up, Zgt paywall, openAuthModal relay); make it a no-op."
   },
   {
     "group": "menu",
     "file": "content-scripts/all.js",
-    "find": "git=async(t,e)=>{const n=rt(\"c3e3neqd\");try{",
-    "replace": "git=async(t,e)=>{const n=rt(\"c3e3neqd\");try{if(\"string\"!=typeof t||!t.startsWith(\"popup:\")){if(\"app:hub\"!==t)return;t=\"popup:themes\"}",
+    "find": "git=async(t,e)=>{const n=rt(\"c3e3neqd\");try{const n=navigator",
+    "replace": "git=async(t,e)=>{const n=rt(\"c3e3neqd\");try{if(\"string\"!=typeof t||!t.startsWith(\"popup:\")){if(\"app:hub\"!==t)return;t=\"popup:themes\"}const n=navigator",
     "why": "openEmbeddedAppPage: 'open the hub' becomes 'open local menu on Themes'; every other app:* page (planner, grades, study, notes, locker, course, create, settings/billing) becomes a no-op."
   },
   {
@@ -79,50 +79,57 @@
   {
     "group": "promos",
     "file": "background.js",
-    "find": "const e=y(\"sxv1x1av\");try{",
-    "replace": "const e=y(\"sxv1x1av\");try{return;",
+    "find": "const e=y(\"sxv1x1av\");try{if(\"function\"!=typeof c.runtime",
+    "replace": "const e=y(\"sxv1x1av\");try{return;if(\"function\"!=typeof c.runtime",
     "why": "No uninstall URL (bettercampus.com/goodbye?aid=...); Qd runs on startup and install"
   },
   {
     "group": "promos",
     "file": "content-scripts/all.js",
-    "find": "async function fc(t){const n=rt(\"2vox8qoq\");try{",
-    "replace": "async function fc(t){const n=rt(\"2vox8qoq\");try{return{status:\"merge\"===t?.command?\"ok\":\"empty\"};",
+    "find": "async function fc(t){const n=rt(\"2vox8qoq\");try{dc();try{return st(n,Zi.parse",
+    "replace": "async function fc(t){const n=rt(\"2vox8qoq\");try{return{status:\"merge\"===t?.command?\"ok\":\"empty\"};dc();try{return st(n,Zi.parse",
     "why": "Content campaign client: answer locally (merge ok, else empty) without messaging background or registering CAMPAIGN_DOCUMENT listener"
   },
   {
     "group": "promos",
     "file": "content-scripts/all.js",
-    "find": "async function mc(t){const n=rt(\"2s7gj845\");try{",
-    "replace": "async function mc(t){const n=rt(\"2s7gj845\");try{return{status:\"ok\",occurrence:null};",
+    "find": "async function mc(t){const n=rt(\"2s7gj845\");try{dc();const r={type",
+    "replace": "async function mc(t){const n=rt(\"2s7gj845\");try{return{status:\"ok\",occurrence:null};dc();const r={type",
     "why": "Interval (every-N-menu-opens) popups: no occurrence ever due"
   },
   {
     "group": "promos",
     "file": "content-scripts/all.js",
-    "find": "che=async()=>{const t=rt(\"om8dc3pc\");try{",
-    "replace": "che=async()=>{const t=rt(\"om8dc3pc\");try{return;",
+    "find": "che=async()=>{const t=rt(\"om8dc3pc\");try{const t=await $m([\"should_show_spotlight\"",
+    "replace": "che=async()=>{const t=rt(\"om8dc3pc\");try{return;const t=await $m([\"should_show_spotlight\"",
     "why": "Product tour / spotlight mount + hub handoff (opens app:hub); also stops '[BetterCampus Tour] evaluation' console spam"
   },
   {
     "group": "promos",
     "file": "content-scripts/all.js",
-    "find": "zit=t=>{const e=rt(\"1qc7jm1g\");try{",
-    "replace": "zit=t=>{const e=rt(\"1qc7jm1g\");try{return;",
+    "find": "zit=t=>{const e=rt(\"1qc7jm1g\");try{const e=t?.highlight",
+    "replace": "zit=t=>{const e=rt(\"1qc7jm1g\");try{return;const e=t?.highlight",
     "why": "Single choke point for opening app:upgrade (upgrade modal); all Upgrade buttons, tbt/Kgt gates, bridge UpgradeModal become no-ops"
   },
   {
     "group": "promos",
     "file": "content-scripts/all.js",
-    "find": "async function Rit(t,e){const n=rt(\"n34fby7i\");try{",
-    "replace": "async function Rit(t,e){const n=rt(\"n34fby7i\");try{return;",
+    "find": "async function Rit(t,e){const n=rt(\"n34fby7i\");try{if(e?.source",
+    "replace": "async function Rit(t,e){const n=rt(\"n34fby7i\");try{return;if(e?.source",
     "why": "Auth/upgrade modal opener (signup/login/upgrade, incl. iframe openAuthModal relay): no-op. OVERLAP with login investigator"
   },
   {
     "group": "promos",
     "file": "content-scripts/all.js",
-    "find": "const t=rt(\"68nalgy8\");try{Fpe()}",
-    "replace": "const t=rt(\"68nalgy8\");try{}",
+    "find": "tmt=async(t,e)=>{const n=rt(\"gnueesus\");try{if(\"accountRequired\"===t)",
+    "replace": "tmt=async(t,e)=>{const n=rt(\"gnueesus\");try{return;if(\"accountRequired\"===t)",
+    "why": "Account-required / upgrade prompt for restricted features (accountRequired, accountRequiredUpgraded): never shown."
+  },
+  {
+    "group": "promos",
+    "file": "content-scripts/all.js",
+    "find": "const t=rt(\"68nalgy8\");try{Fpe()}catch(e){throw at(t),e}finally{ot(t)}}unload",
+    "replace": "const t=rt(\"68nalgy8\");try{}catch(e){throw at(t),e}finally{ot(t)}}unload",
     "why": "feedbackPrompt feature (nue.load): no feedback/rate-us card in dashboard (also kills CWS/Edge review link + OPEN_STRIPE sender)"
   },
   {
@@ -135,15 +142,15 @@
   {
     "group": "promos",
     "file": "content-scripts/all.js",
-    "find": "0===ht&&(0,$At.jsxs)(\"button\",{type:\"button\",onClick:()=>{const t=rt(\"lh89dvng\")",
-    "replace": "!1&&(0,$At.jsxs)(\"button\",{type:\"button\",onClick:()=>{const t=rt(\"lh89dvng\")",
+    "find": "0===ht&&(0,$At.jsxs)(\"button\",{type:\"button\",onClick:()=>{const t=rt(\"lh89dvng\");try{return zit({highlight:\"theme_remixes\"})",
+    "replace": "!1&&(0,$At.jsxs)(\"button\",{type:\"button\",onClick:()=>{const t=rt(\"lh89dvng\");try{return zit({highlight:\"theme_remixes\"})",
     "why": "Theme editor: hide 'Upgrade' button when 0 remix slots"
   },
   {
     "group": "promos",
     "file": "content-scripts/all.js",
-    "find": "0===pt?(0,$At.jsxs)(\"button\",{type:\"button\",onClick:()=>{const t=rt(\"mzsfetwm\")",
-    "replace": "!1?(0,$At.jsxs)(\"button\",{type:\"button\",onClick:()=>{const t=rt(\"mzsfetwm\")",
+    "find": "0===pt?(0,$At.jsxs)(\"button\",{type:\"button\",onClick:()=>{const t=rt(\"mzsfetwm\");try{return zit({highlight:\"theme_creations\"})",
+    "replace": "!1?(0,$At.jsxs)(\"button\",{type:\"button\",onClick:()=>{const t=rt(\"mzsfetwm\");try{return zit({highlight:\"theme_creations\"})",
     "why": "Theme editor: hide 'Upgrade for more' when 0 creation slots (falls through to normal branch)"
   },
   {
@@ -156,8 +163,8 @@
   {
     "group": "promos",
     "file": "content-scripts/all.js",
-    "find": "children:(0,uJt.jsx)(fJt,{...t})",
-    "replace": "children:null",
+    "find": ".presentation.finish()).catch(()=>{ot(rt(\"4luza9cj\"))})}catch(n){throw at(e),n}finally{ot(e)}},children:(0,uJt.jsx)(fJt,{...t})",
+    "replace": ".presentation.finish()).catch(()=>{ot(rt(\"4luza9cj\"))})}catch(n){throw at(e),n}finally{ot(e)}},children:null",
     "why": "Campaign popup card ('Make Canvas yours.'): render nothing. Campaigns never start (the background engine is skipped), and with the card unreferenced the minifier drops it and its 842 KB inline image."
   },
   {
@@ -184,8 +191,8 @@
   {
     "group": "page",
     "file": "content-scripts/all.js",
-    "find": "u=d&&await DPt();let h=",
-    "replace": "u=!1;let h=",
+    "find": "\"card_create_button\"]),u=d&&await DPt();let h=",
+    "replace": "\"card_create_button\"]),u=!1;let h=",
     "why": "cardCustomizations: never add the '+' Create button on dashboard cards (opens app:create cloud page); passing false also removes any existing button."
   },
   {
@@ -213,8 +220,15 @@
     "group": "page",
     "file": "content-scripts/all.js",
     "find": "Promise.all([rle(e),ale(e),fle(e),mle(e),ele()])",
-    "replace": "Promise.all([rle(e),[],[],[],ele().then(t=>t.filter(t=>![\"class_start_prompt\",\"study_set_prompt\",\"planner_prompt\"].includes(t.source)))])",
-    "why": "In-page reminders: keep local todo due reminders (_we); drop class 'take AI notes' (app:notes), 'make flashcards' (app:study) and 'planner focus' (app:planner) prompt stacks. The floating notification center's unread count (ele) leaves out those three sources too, so it never counts prompts it doesn't show."
+    "replace": "Promise.all([rle(e),[],[],[],ele()])",
+    "why": "In-page reminders: keep local todo due reminders (rle); drop class 'take AI notes' (app:notes), 'make flashcards' (app:study) and 'planner focus' (app:planner) prompt stacks."
+  },
+  {
+    "group": "page",
+    "file": "content-scripts/all.js",
+    "find": "if(\"class_start_prompt\"===t.source){Kie(t,r)&&a.push(Zce(t));continue}if(\"study_set_prompt\"===t.source){cce(t,r)&&a.push(Zce(t));continue}if(\"planner_prompt\"===t.source){wce(t,r)&&a.push(Zce(t));continue}",
+    "replace": "if(\"class_start_prompt\"===t.source||\"study_set_prompt\"===t.source||\"planner_prompt\"===t.source)continue;",
+    "why": "Notification list (its unread count): leave out the class 'take AI notes', 'make flashcards' and 'planner focus' prompts the reminder stacks drop above."
   },
   {
     "group": "page",
@@ -226,8 +240,8 @@
   {
     "group": "page",
     "file": "content-scripts/all.js",
-    "find": "hoverOnly:a.grade_hover,linkTarget:\"bettercampus\"===a.card_grade_target?\"bettercampus\":\"canvas\"",
-    "replace": "hoverOnly:a.grade_hover,linkTarget:\"canvas\"",
+    "find": "hoverOnly:a.grade_hover,linkTarget:\"bettercampus\"===a.card_grade_target?\"bettercampus\":\"canvas\"})",
+    "replace": "hoverOnly:a.grade_hover,linkTarget:\"canvas\"})",
     "why": "Canvas card grades: always link to Canvas grades page."
   },
   {
@@ -240,30 +254,23 @@
   {
     "group": "page",
     "file": "content-scripts/all.js",
-    "find": "hoverOnly:o.grade_hover,linkTarget:\"bettercampus\"===o.card_grade_target?\"bettercampus\":\"canvas\"",
-    "replace": "hoverOnly:o.grade_hover,linkTarget:\"canvas\"",
+    "find": "hoverOnly:o.grade_hover,linkTarget:\"bettercampus\"===o.card_grade_target?\"bettercampus\":\"canvas\",nativeHref:",
+    "replace": "hoverOnly:o.grade_hover,linkTarget:\"canvas\",nativeHref:",
     "why": "Other-LMS card grades: always native grades link."
   },
   {
     "group": "page",
     "file": "content-scripts/all.js",
-    "find": "const t=rt(\"nfyb4fuf\");try{return git(\"app:locker\"),void 0}",
-    "replace": "const t=rt(\"nfyb4fuf\");try{return git(\"popup:courses\"),void 0}",
+    "find": "label:\"Courses settings\",className:\"ml-auto\",onClick:()=>{const t=rt(\"nfyb4fuf\");try{return git(\"app:locker\")",
+    "replace": "label:\"Courses settings\",className:\"ml-auto\",onClick:()=>{const t=rt(\"nfyb4fuf\");try{return git(\"popup:courses\")",
     "why": "BetterCampus sidebar 'Courses' section gear: open local Courses settings tab instead of cloud Locker."
   },
   {
     "group": "page",
     "file": "content-scripts/all.js",
-    "find": "hae=()=>{const t=rt(\"61dn7lrl\");try{",
-    "replace": "hae=()=>{const t=rt(\"61dn7lrl\");try{return null;",
+    "find": "hae=()=>{const t=rt(\"61dn7lrl\");try{const{options",
+    "replace": "hae=()=>{const t=rt(\"61dn7lrl\");try{return null;const{options",
     "why": "Todo list: hide the calendar 'Sync' button (login + Pro calendarSync)."
-  },
-  {
-    "group": "page",
-    "file": "content-scripts/all.js",
-    "find": "m=function(t){const e=rt(\"pvjtf0t1\");try{return!0===JK(t)?.icsFeeds}catch(n){throw at(e),n}finally{ot(e)}}(h?.lms_sync_type)&&void 0!==f&&!f",
-    "replace": "m=!1",
-    "why": "Todo list: drop the 'Set up calendar feed' prompt (9.9.1; LMSes synced through calendar feeds, with no feed saved yet). Its button only opened the cloud app's calendar-feeds settings, and while it showed, the list below was dimmed and unclickable."
   },
   {
     "group": "page",
@@ -275,8 +282,8 @@
   {
     "group": "page",
     "file": "content-scripts/all.js",
-    "find": "onOpenGrades:Boe,",
-    "replace": "onOpenGrades:void 0,",
+    "find": "currentSemesterGPA:r,cumulativeGPA:a,onOpenGrades:Boe,onRefresh:",
+    "replace": "currentSemesterGPA:r,cumulativeGPA:a,onOpenGrades:void 0,onRefresh:",
     "why": "GPA Overview widget: title becomes plain text instead of a button opening cloud app:grades."
   },
   {
@@ -285,6 +292,13 @@
     "find": "(0,uJt.jsx)(\"div\",{className:\"text-center\",children:(0,uJt.jsx)(\"button\",{onClick:o,className:\"text-xs text-theme-link hover:text-theme-0 hover:underline transition-colors duration-200 cursor-pointer bg-transparent border-none p-0\",children:\"What if (GPA calc)\"})})",
     "replace": "null",
     "why": "Legacy GPA popup: remove 'What if (GPA calc)' link to cloud app:grades?view=what-if."
+  },
+  {
+    "group": "page",
+    "file": "content-scripts/all.js",
+    "find": "m=function(t){const e=rt(\"pvjtf0t1\");try{return!0===JK(t)?.icsFeeds}catch(n){throw at(e),n}finally{ot(e)}}(h?.lms_sync_type)&&void 0!==f&&!f",
+    "replace": "m=!1",
+    "why": "Todo list: drop the 'Set up calendar feed' prompt (9.9.1; LMSes synced through calendar feeds, with no feed saved yet). Its button only opened the cloud app's calendar-feeds settings, and while it showed, the list below was dimmed and unclickable."
   },
   {
     "group": "cleanup",
@@ -324,15 +338,15 @@
   {
     "group": "cleanup",
     "file": "content-scripts/all.js",
-    "find": "function p3(t){const e=rt(\"suu83zwd\");try{",
-    "replace": "function p3(t){const e=rt(\"suu83zwd\");try{return Promise.resolve(!1);",
+    "find": "function p3(t){const e=rt(\"suu83zwd\");try{const e=!0===t?.force",
+    "replace": "function p3(t){const e=rt(\"suu83zwd\");try{return Promise.resolve(!1);const e=!0===t?.force",
     "why": "Cloud settings sync engine (users/sync/pull and push): never runs; callers treat false as \"not synced\"."
   },
   {
     "group": "cleanup",
     "file": "content-scripts/all.js",
-    "find": "async function(t){const e=rt(\"8458wyrd\");try{",
-    "replace": "async function(t){const e=rt(\"8458wyrd\");try{return;",
+    "find": "async function(t){const e=rt(\"8458wyrd\");try{const{__streak_debug_date",
+    "replace": "async function(t){const e=rt(\"8458wyrd\");try{return;const{__streak_debug_date",
     "why": "Streak push to api.bettercampus.com/streak: skip (401 spam without an account)."
   },
   {
@@ -401,30 +415,86 @@
   {
     "group": "removals",
     "file": "content-scripts/viewer.js",
-    "find": "n.annotations&&(!function(){const e=te(\"1xatgiol\");try{",
-    "replace": "!1&&(!function(){const e=te(\"1xatgiol\");try{",
-    "why": "File annotations: don't mount the annotation tooltip overlay (bettercampus-annotation-tooltips, new in 9.9.1) or load the Figtree font it's set in; the annotation layer it serves never starts."
+    "find": "let a=null;n.annotations&&(!function(){const e=te(\"1xatgiol\");",
+    "replace": "let a=null;!1&&(!function(){const e=te(\"1xatgiol\");",
+    "why": "File annotations: don't mount the annotation tooltips overlay (or load the Figtree font it alone uses) in the Canvas file viewer; with the annotation layer never started it would stay empty."
+  },
+  {
+    "group": "bcx",
+    "file": "content-scripts/all.js",
+    "find": "Lvt=({img:t,visualType:n,onUpdate:r,autoShowUpload:a=!1,uploadType:o=\"card\",container:s,onClose:i,imageFilter:c=null,imageFilterIntensity:l=100})=>{const d=rt(\"twbw3oh7\");try{",
+    "replace": "Lvt=({img:t,visualType:n,onUpdate:r,autoShowUpload:a=!1,uploadType:o=\"card\",container:s,onClose:i,imageFilter:c=null,imageFilterIntensity:l=100})=>{const d=rt(\"twbw3oh7\");try{const $bcxCardSave=$bcxImg=>r({img:$bcxImg,visual_type:n&&\"default\"!==n?n:\"sync\",overlay_opacity:65,image_filter:void 0,image_filter_intensity:100});",
+    "why": "Course-card image picker: our editor's save, the same setter call as their free URL path (onUpdate with the card's visual type), defined where its props are in scope for the cropper hook below."
   },
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
     "find": "(0,Rvt.jsx)(xvt,{isOpen:\"cropping\"===f,onClose:()=>{const t=rt(\"je604jfd\");try{ct(),h||i?.()}catch(e){throw at(t),e}finally{ot(t)}},imageSrc:p,onCropComplete:et,onCropAnimated:lt,mode:R,onError:()=>{const t=rt(\"8cghr87v\");try{r4(\"Failed to load image.\",\"error\"),ct(),h||i?.()}catch(e){throw at(t),e}finally{ot(t)}},container:u,imageType:o,hideFilters:!1,initialFilter:x??c,initialFilterIntensity:j??l})",
-    "replace": "(\"cropping\"===f&&p&&globalThis.__bcx?.({feature:\"cardImageEditing\",imageSrc:p,imageType:o,animated:\"cropAnimated\"===R,container:u,save:e=>{r({img:e,visual_type:n&&\"default\"!==n?n:\"sync\",overlay_opacity:65,image_filter:void 0,image_filter_intensity:100}),ct(),i?.()},cancel:()=>{ct(),h||i?.()}}),null)",
+    "replace": "(\"cropping\"===f&&p&&globalThis.__bcx?.({feature:\"cardImageEditing\",imageSrc:p,imageType:o,animated:\"cropAnimated\"===R,container:u,save:$bcxImg=>{$bcxCardSave($bcxImg),ct(),i?.()},cancel:()=>{ct(),h||i?.()}}),null)",
     "why": "Course-card image picker: hand cropping to our editor (src/bcx/cardImage.ts) instead of their Pro-gated cropper; save goes through the same setter as their free URL path."
   },
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
+    "find": "X=t=>{const e=rt(\"2hdf1lvb\");try{n({img:t,visual_type:\"image\",is_animated:!1}),d(\"image\"),V8(\"theme_img_text_changed\",async()=>{const t=rt(\"i6s391ym\");try{W8(\"theme_img_text_changed\",{},{sampleRate:.05})}catch(e){throw at(t),e}finally{ot(t)}},2),y(!0)}",
+    "replace": "$bcxThemeSave=$bcxImg=>{n({img:$bcxImg,visual_type:\"image\",is_animated:!1,image_filter:void 0,image_filter_intensity:100}),d(\"image\"),y(!0)},X=t=>{const e=rt(\"2hdf1lvb\");try{n({img:t,visual_type:\"image\",is_animated:!1}),d(\"image\"),V8(\"theme_img_text_changed\",async()=>{const t=rt(\"i6s391ym\");try{W8(\"theme_img_text_changed\",{},{sampleRate:.05})}catch(e){throw at(t),e}finally{ot(t)}},2),y(!0)}",
+    "why": "Theme-editor image field: our editor's save, next to (and mirroring) their free URL path X: n + d(\"image\") + y(!0), plus clearing their filter since ours is baked into the image."
+  },
+  {
+    "group": "bcx",
+    "file": "content-scripts/all.js",
     "find": "(0,ljt.jsx)(xvt,{isOpen:u,onClose:Q,imageSrc:f,onCropComplete:U,onCropAnimated:V,mode:N,container:o,initialFilter:t.image_filter,initialFilterIntensity:t.image_filter_intensity,imageType:\"card\"===a?\"card\":\"sidebar\"===a?\"sidebar\":\"background\"})",
-    "replace": "(u&&f&&globalThis.__bcx?.({feature:\"cardImageEditing\",imageSrc:f,imageType:\"card\"===a?\"card\":\"sidebar\"===a?\"sidebar\":\"background\",animated:\"cropAnimated\"===N,container:o,save:e=>{n({img:e,visual_type:\"image\",is_animated:!1,image_filter:void 0,image_filter_intensity:100}),d(\"image\"),y(!0),Q()},cancel:Q}),null)",
-    "why": "Theme-editor image field (card/sidebar/background): same handoff to our editor; save mirrors their free URL path (n + d(\"image\") + y(!0))."
+    "replace": "(u&&f&&globalThis.__bcx?.({feature:\"cardImageEditing\",imageSrc:f,imageType:\"card\"===a?\"card\":\"sidebar\"===a?\"sidebar\":\"background\",animated:\"cropAnimated\"===N,container:o,save:$bcxImg=>{$bcxThemeSave($bcxImg),Q()},cancel:Q}),null)",
+    "why": "Theme-editor image field (card/sidebar/background): same handoff to our editor; save goes through $bcxThemeSave (their free URL path), cancel through their own close."
+  },
+  {
+    "group": "bcx",
+    "file": "content-scripts/all.js",
+    "find": "var cJt=f(At(),1);function lJt(t,e){const n=rt(\"pni8orpm\");try{const n=(0,cJt.useRef",
+    "replace": "var cJt=f(At(),1),$bcxReact=cJt;function lJt(t,e){const n=rt(\"pni8orpm\");try{const n=(0,cJt.useRef",
+    "why": "Name React's module for our hooks that run inside their components (session times), so they don't depend on a minified import name."
+  },
+  {
+    "group": "bcx",
+    "file": "content-scripts/all.js",
+    "find": "var dJt=f(yW(),1),uJt=JS(),hJt=\"bettercampus-campaign-root\",",
+    "replace": "var dJt=f(yW(),1),$bcxReactDom=dJt,uJt=JS(),hJt=\"bettercampus-campaign-root\",",
+    "why": "Name ReactDOM's client module for our agenda day view, which mounts their list component in its own root."
+  },
+  {
+    "group": "bcx",
+    "file": "content-scripts/all.js",
+    "find": "t$t=({items:t})=>{const e=rt(\"k56b9bwq\");try{",
+    "replace": "$bcxAgendaList=($bcxEl,$bcxItems)=>{const $bcxRoot=$bcxReactDom.createRoot($bcxEl);return $bcxRoot.render($bcxReact.createElement(t$t,{items:$bcxItems})),$bcxRoot},t$t=({items:t})=>{const e=rt(\"k56b9bwq\");try{",
+    "why": "Agenda: render their item list component into an element of our day view (src/bcx/agenda.ts)."
+  },
+  {
+    "group": "bcx",
+    "file": "content-scripts/all.js",
+    "find": "var __t={plannedAt:null,duration:30,status:\"incomplete\",points:null,is_custom:!1},$_t=({label:t,children:e})=>{const n=rt(\"bq0u7gdz\");",
+    "replace": "var __t={plannedAt:null,duration:30,status:\"incomplete\",points:null,is_custom:!1},$bcxTodoDefaults=__t,$_t=({label:t,children:e})=>{const n=rt(\"bq0u7gdz\");",
+    "why": "Agenda: name the default To-Do fields their today view merges under cached to-dos, for our day view."
+  },
+  {
+    "group": "bcx",
+    "file": "content-scripts/all.js",
+    "find": "h_t=t=>{const e=rt(\"8o59jwpb\");try{const e=new Date",
+    "replace": "$bcxAgendaEvent=$bcxEv=>h_t($bcxEv),h_t=t=>{const e=rt(\"8o59jwpb\");try{const e=new Date",
+    "why": "Agenda: name their calendar-event normalizer, for our day view."
+  },
+  {
+    "group": "bcx",
+    "file": "content-scripts/all.js",
+    "find": "agenda:()=>{const t=rt(\"lc3atho1\");try{const{courseData:t,schedule:e,visibleCourseIds:n}=ett(),[r,a]=(0,cJt.useState)(new Date),[o,s]=(0,cJt.useState)([]),[i,c]=(0,cJt.useState)(!1),[l,d]=(0,cJt.useState)(new Date),u=(0,cJt.useRef)(!1),{options:h}=R4([\"clock_format\",\"todo_24hr\",\"auth\"]),f=\"24\"===(h.clock_format||(h.todo_24hr?\"24\":\"12\"))?\"HH:mm\":\"h:mm a\",m=h?.auth?.user?h?.auth?.user?.app_metadata?.plan_type||\"free\":\"none\",p=\"none\"!==m&&\"free\"!==m,y=p?r:new Date,g=z3(),b=D3(),{events:w}=u_t(),v=async()=>{const t=rt(\"9m5b7vnh\");try{if(u.current)return void 0,void 0;u.current=!0,c(!0);try{void 0,await y4(y,Qx(y,1))}catch(e){console.error(\"Error fetching agenda:\",e)}finally{c(!1),u.current=!1}}catch(n){throw at(t),n}finally{ot(t)}},x=()=>{const a=rt(\"sktj6ko0\");try{const a=P5(\"todo_cache\"),o=[];",
+    "replace": "agenda:()=>{const t=rt(\"lc3atho1\");try{const{courseData:t,schedule:e,visibleCourseIds:n}=ett(),[r,a]=(0,cJt.useState)(new Date),[o,s]=(0,cJt.useState)([]),[i,c]=(0,cJt.useState)(!1),[l,d]=(0,cJt.useState)(new Date),u=(0,cJt.useRef)(!1),{options:h}=R4([\"clock_format\",\"todo_24hr\",\"auth\"]),f=\"24\"===(h.clock_format||(h.todo_24hr?\"24\":\"12\"))?\"HH:mm\":\"h:mm a\",m=h?.auth?.user?h?.auth?.user?.app_metadata?.plan_type||\"free\":\"none\",p=\"none\"!==m&&\"free\"!==m,y=p?r:new Date,g=z3(),b=D3(),{events:w}=u_t(),$bcxAgendaCtx=globalThis.__bcx?.({feature:\"agenda_context\",ctx:{courseData:t,schedule:e,visibleCourseIds:n,overrides:g,planned:b,events:w.map($bcxAgendaEvent),timeFormat:f,loadRange:y4,todoCache:()=>P5(\"todo_cache\"),defaults:$bcxTodoDefaults,renderList:$bcxAgendaList}}),v=async()=>{const t=rt(\"9m5b7vnh\");try{if(u.current)return void 0,void 0;u.current=!0,c(!0);try{void 0,await y4(y,Qx(y,1))}catch(e){console.error(\"Error fetching agenda:\",e)}finally{c(!1),u.current=!1}}catch(n){throw at(t),n}finally{ot(t)}},x=()=>{const a=rt(\"sktj6ko0\");try{const a=P5(\"todo_cache\"),o=[];",
+    "why": "Agenda widget: share its free data (course schedule, cached to-dos, overrides, planned sessions, events, the free range loader and their list component) with our day view (src/bcx/agenda.ts) on every render."
   },
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
     "find": "return(0,uJt.jsxs)(\"div\",{className:\"p-4 pt-3 bg-theme-0 text-theme-0 flex flex-col gap-3 h-full overflow-auto\",",
-    "replace": "return globalThis.__bcx?.({feature:\"agenda_context\",ctx:{courseData:t,schedule:e,visibleCourseIds:n,overrides:g,planned:b,events:w.map(h_t),timeFormat:f,loadRange:y4,todoCache:()=>P5(\"todo_cache\"),defaults:__t,renderList:(el,items)=>{const root=dJt.createRoot(el);return root.render((0,uJt.jsx)(t$t,{items})),root}}}),(0,uJt.jsxs)(\"div\",{ref:el=>{el&&globalThis.__bcx?.({feature:\"agenda_root\",el})},className:\"p-4 pt-3 bg-theme-0 text-theme-0 flex flex-col gap-3 h-full overflow-auto\",",
-    "why": "Agenda widget: share its free data (course schedule, cached to-dos, overrides, planned sessions, events, the free range loader and their list component) and its root element with our day view (src/bcx/agenda.ts)."
+    "replace": "return(0,uJt.jsxs)(\"div\",{ref:$bcxEl=>{$bcxEl&&globalThis.__bcx?.({feature:\"agenda_root\",el:$bcxEl})},className:\"p-4 pt-3 bg-theme-0 text-theme-0 flex flex-col gap-3 h-full overflow-auto\",",
+    "why": "Agenda widget: hand its root element to our day view, which draws other days over it."
   },
   {
     "group": "bcx",
@@ -436,21 +506,21 @@
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
-    "find": "return j(KE(r,1))}catch(e){throw at(t),e}finally{ot(t)}},className:\"p-1 hover:bg-theme-1 rounded transition-colors cursor-pointer relative\",children:[(0,uJt.jsx)(ZPt,{highlight:\"agenda_date_change\",className:\"absolute -top-0.5 -right-0.5 size-2.5\"})",
-    "replace": "return j(KE(r,1))}catch(e){throw at(t),e}finally{ot(t)}},className:\"p-1 hover:bg-theme-1 rounded transition-colors cursor-pointer relative\",children:[null",
+    "find": "\"aria-label\":\"Previous day\",onClick:()=>{const t=rt(\"nuqn2jqp\");try{return j(KE(r,1))}catch(e){throw at(t),e}finally{ot(t)}},className:\"p-1 hover:bg-theme-1 rounded transition-colors cursor-pointer relative\",children:[(0,uJt.jsx)(ZPt,{highlight:\"agenda_date_change\",className:\"absolute -top-0.5 -right-0.5 size-2.5\"})",
+    "replace": "\"aria-label\":\"Previous day\",onClick:()=>{const t=rt(\"nuqn2jqp\");try{return j(KE(r,1))}catch(e){throw at(t),e}finally{ot(t)}},className:\"p-1 hover:bg-theme-1 rounded transition-colors cursor-pointer relative\",children:[null",
     "why": "Agenda: drop the Pro crown on the previous-day arrow."
   },
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
-    "find": "return j(Qx(r,1))}catch(e){throw at(t),e}finally{ot(t)}},className:\"p-1 hover:bg-theme-1 rounded transition-colors cursor-pointer relative\",children:[(0,uJt.jsx)(ZPt,{highlight:\"agenda_date_change\",className:\"absolute -top-0.5 -right-0.5 size-2.5\"})",
-    "replace": "return j(Qx(r,1))}catch(e){throw at(t),e}finally{ot(t)}},className:\"p-1 hover:bg-theme-1 rounded transition-colors cursor-pointer relative\",children:[null",
+    "find": "\"aria-label\":\"Next day\",onClick:()=>{const t=rt(\"aktvwq55\");try{return j(Qx(r,1))}catch(e){throw at(t),e}finally{ot(t)}},className:\"p-1 hover:bg-theme-1 rounded transition-colors cursor-pointer relative\",children:[(0,uJt.jsx)(ZPt,{highlight:\"agenda_date_change\",className:\"absolute -top-0.5 -right-0.5 size-2.5\"})",
+    "replace": "\"aria-label\":\"Next day\",onClick:()=>{const t=rt(\"aktvwq55\");try{return j(Qx(r,1))}catch(e){throw at(t),e}finally{ot(t)}},className:\"p-1 hover:bg-theme-1 rounded transition-colors cursor-pointer relative\",children:[null",
     "why": "Agenda: drop the Pro crown on the next-day arrow."
   },
   {
     "group": "removals",
     "file": "content-scripts/all.js",
-    "find": "r(\"autoRotate\")&&(0,Jst.jsx)(Kst,{label:\"Auto-rotate theme\",",
+    "find": "(0,Jst.jsx)(Kst,{label:\"Auto-rotate theme\",",
     "replace": "!1&&(0,Jst.jsx)(Kst,{label:\"Auto-rotate theme\",",
     "why": "Auto-rotating themes: drop the rotate button from the Edit Canvas header (it opened the auto-rotate modal)."
   },
@@ -471,16 +541,16 @@
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
-    "find": "I=()=>{const t=rt(\"wnvztgu3\");try{",
-    "replace": "I=()=>{const t=rt(\"wnvztgu3\");try{const $bcx=globalThis.__bcxTodoRange;if($bcx?.active)return $bcx.range(d);",
+    "find": "I=()=>{const t=rt(\"wnvztgu3\");try{if(\"rolling\"===o.todo_period_start||\"custom\"===o.todo_time){const t=mk(d);",
+    "replace": "I=()=>{const t=rt(\"wnvztgu3\");try{const $bcx=globalThis.__bcxTodoRange;if($bcx?.active)return $bcx.range(d);if(\"rolling\"===o.todo_period_start||\"custom\"===o.todo_time){const t=mk(d);",
     "why": "To-Do date range: while our custom range is active, our range math supplies the window the free list pipeline loads and buckets."
   },
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
-    "find": "S=t=>{const e=rt(\"2yhasz02\");try{",
-    "replace": "S=t=>{const e=rt(\"2yhasz02\");try{const $bcx=globalThis.__bcxTodoRange;if($bcx?.active)return u($bcx.step(d,t)),void 0;",
-    "why": "To-Do arrows: step by our custom range length while it is active."
+    "find": "S=t=>{const e=rt(\"2yhasz02\");try{const e=\"next\"===t?1:-1;let n;if(\"rolling\"===o.todo_period_start)if(\"custom\"===o.todo_time&&\"months\"===(o.todo_custom_unit||\"days\"))n=Vx(d,e*(o.todo_custom_value||7));else{const t=\"day\"===o.todo_time?1:\"week\"===o.todo_time?7:\"custom\"===o.todo_time?N():30;n=Qx(d,e*t)}else if(\"day\"===o.todo_time)n=Qx(d,e);else if(\"week\"===o.todo_time)n=Ck(d,e);else if(\"custom\"===o.todo_time){const t=o.todo_custom_unit||\"days\",r=o.todo_custom_value||7;n=\"months\"===t?Vx(d,e*r):Qx(d,e*N())}else n=Vx(d,e);u(n)}",
+    "replace": "S=t=>{const e=rt(\"2yhasz02\");try{const $bcx=globalThis.__bcxTodoRange;if($bcx?.active)return u($bcx.step(d,t)),void 0;const e=\"next\"===t?1:-1;let n;if(\"rolling\"===o.todo_period_start)if(\"custom\"===o.todo_time&&\"months\"===(o.todo_custom_unit||\"days\"))n=Vx(d,e*(o.todo_custom_value||7));else{const t=\"day\"===o.todo_time?1:\"week\"===o.todo_time?7:\"custom\"===o.todo_time?N():30;n=Qx(d,e*t)}else if(\"day\"===o.todo_time)n=Qx(d,e);else if(\"week\"===o.todo_time)n=Ck(d,e);else if(\"custom\"===o.todo_time){const t=o.todo_custom_unit||\"days\",r=o.todo_custom_value||7;n=\"months\"===t?Vx(d,e*r):Qx(d,e*N())}else n=Vx(d,e);u(n)}",
+    "why": "To-Do arrows: step by our custom range length while it is active. The anchor is their whole step function, which holds both the start date and its setter."
   },
   {
     "group": "bcx",
@@ -492,64 +562,64 @@
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
-    "find": "onSelect:t=>{const e=rt(\"dcruznqg\");try{t.preventDefault(),mvt(\"todoCustomTimeframe\")}",
-    "replace": "onSelect:t=>{const e=rt(\"dcruznqg\");try{globalThis.__bcx?.({feature:\"todo_custom_range\",action:\"pick\",container:a})}",
-    "why": "Dashboard To-Do header: \"Custom\" opens our range picker instead of the Pro upsell."
+    "find": "Wre=()=>{const t=rt(\"8olop7b4\");try{const{settings:t,changeDate:e}=i2t(),{planType:n}=J8(),r=Hu.includes(n),a=document.querySelector(\"bettercanvas-portal\")?.shadowRoot?.getElementById(\"bettercanvas-portal\")||document.body,",
+    "replace": "Wre=()=>{const t=rt(\"8olop7b4\");try{const{settings:t,changeDate:e}=i2t(),{planType:n}=J8(),r=Hu.includes(n),a=document.querySelector(\"bettercanvas-portal\")?.shadowRoot?.getElementById(\"bettercanvas-portal\")||document.body,$bcxTodoPortal=a,",
+    "why": "Dashboard To-Do header: name the portal its timeframe dropdown renders into, for our range picker."
   },
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
-    "find": "f=async e=>{const n=rt(\"l7ao0sv8\");try{",
-    "replace": "f=async e=>{const n=rt(\"l7ao0sv8\");try{\"custom\"!==e&&globalThis.__bcx?.({feature:\"todo_custom_range\",action:\"clear\"});",
+    "find": "onSelect:t=>{const e=rt(\"dcruznqg\");try{t.preventDefault(),mvt(\"todoCustomTimeframe\")}catch(n){throw at(e),n}finally{ot(e)}},children:[(0,uJt.jsxs)(\"span\",{className:\"inline-flex items-center gap-1.5\",children:[(0,uJt.jsx)(\"span\",{children:\"Custom\"}),(0,uJt.jsx)(Sd,{className:\"size-3\"}),(0,uJt.jsx)(yvt,{className:\"size-3\"})]})",
+    "replace": "onSelect:t=>{const e=rt(\"dcruznqg\");try{globalThis.__bcx?.({feature:\"todo_custom_range\",action:\"pick\",container:$bcxTodoPortal})}catch(n){throw at(e),n}finally{ot(e)}},children:[(0,uJt.jsxs)(\"span\",{className:\"inline-flex items-center gap-1.5\",children:[(0,uJt.jsx)(\"span\",{children:\"Custom\"}),(0,uJt.jsx)(Sd,{className:\"size-3\"})]})",
+    "why": "Dashboard To-Do header: \"Custom\" opens our range picker instead of the Pro upsell, and loses its Pro crown."
+  },
+  {
+    "group": "bcx",
+    "file": "content-scripts/all.js",
+    "find": "f=async e=>{const n=rt(\"l7ao0sv8\");try{if(\"custom\"",
+    "replace": "f=async e=>{const n=rt(\"l7ao0sv8\");try{\"custom\"!==e&&globalThis.__bcx?.({feature:\"todo_custom_range\",action:\"clear\"});if(\"custom\"",
     "why": "Dashboard To-Do header: picking Day/Week/Month turns our custom range off (even when the preset is unchanged)."
   },
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
-    "find": "onSelect:t=>{const e=rt(\"5yl93yhb\");try{t.preventDefault(),mvt(\"todoCustomTimeframe\")}",
-    "replace": "onSelect:t=>{const e=rt(\"5yl93yhb\");try{globalThis.__bcx?.({feature:\"todo_custom_range\",action:\"pick\",container:o})}",
-    "why": "Settings > Dashboard timeframe: \"Custom\" opens our range picker, in the dropdown's own portal (the page portal is scaled into the preview while the menu is open)."
+    "find": "(0,TPt.useEffect)(()=>{const e=rt(\"c4xjktvr\");try{n(!1!==t.card_bookmark_icons)}catch(r){throw at(e),r}finally{ot(e)}},[t.card_bookmark_icons]);const{portal:o}=bnt(),",
+    "replace": "(0,TPt.useEffect)(()=>{const e=rt(\"c4xjktvr\");try{n(!1!==t.card_bookmark_icons)}catch(r){throw at(e),r}finally{ot(e)}},[t.card_bookmark_icons]);const{portal:o}=bnt(),$bcxTodoPortal=o,",
+    "why": "Settings > Dashboard: name the settings panel portal its dropdowns render into, for our range picker."
   },
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
-    "find": "onSelect:t=>{const e=rt(\"h7m0wzbp\");try{t.preventDefault(),mvt(\"todoCustomTimeframe\")}",
-    "replace": "onSelect:t=>{const e=rt(\"h7m0wzbp\");try{globalThis.__bcx?.({feature:\"todo_custom_range\",action:\"pick\",container:y})}",
-    "why": "Settings > To-Do timeframe: \"Custom\" opens our range picker, in the dropdown's own portal (the page portal is scaled into the preview while the menu is open)."
+    "find": "onSelect:t=>{const e=rt(\"5yl93yhb\");try{t.preventDefault(),mvt(\"todoCustomTimeframe\")}catch(n){throw at(e),n}finally{ot(e)}},children:[(0,PPt.jsxs)(\"span\",{className:\"inline-flex items-center gap-1.5\",children:[(0,PPt.jsx)(\"span\",{children:\"Custom\"}),(0,PPt.jsx)(Sd,{className:\"size-3\"}),(0,PPt.jsx)(yvt,{className:\"size-3\"})]})",
+    "replace": "onSelect:t=>{const e=rt(\"5yl93yhb\");try{globalThis.__bcx?.({feature:\"todo_custom_range\",action:\"pick\",container:$bcxTodoPortal})}catch(n){throw at(e),n}finally{ot(e)}},children:[(0,PPt.jsxs)(\"span\",{className:\"inline-flex items-center gap-1.5\",children:[(0,PPt.jsx)(\"span\",{children:\"Custom\"}),(0,PPt.jsx)(Sd,{className:\"size-3\"})]})",
+    "why": "Settings > Dashboard timeframe: \"Custom\" opens our range picker, in the dropdown's own portal (the page portal is scaled into the preview while the menu is open), and loses its Pro crown."
   },
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
-    "find": "(0,uJt.jsx)(\"span\",{children:\"Custom\"}),(0,uJt.jsx)(Sd,{className:\"size-3\"}),(0,uJt.jsx)(yvt,{className:\"size-3\"})",
-    "replace": "(0,uJt.jsx)(\"span\",{children:\"Custom\"}),(0,uJt.jsx)(Sd,{className:\"size-3\"})",
-    "why": "Timeframe dropdown: drop the Pro crown on \"Custom\" (it opens our picker now)."
+    "find": "const{portal:y,setActiveTab:g}=bnt(),b=t=>{const e=rt(\"skhc4w3g\");",
+    "replace": "const{portal:y,setActiveTab:g}=bnt(),$bcxTodoPortal=y,b=t=>{const e=rt(\"skhc4w3g\");",
+    "why": "Settings > To-Do: name the settings panel portal its dropdowns render into, for our range picker."
   },
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
-    "find": "(0,PPt.jsx)(\"span\",{children:\"Custom\"}),(0,PPt.jsx)(Sd,{className:\"size-3\"}),(0,PPt.jsx)(yvt,{className:\"size-3\"})",
-    "replace": "(0,PPt.jsx)(\"span\",{children:\"Custom\"}),(0,PPt.jsx)(Sd,{className:\"size-3\"})",
-    "why": "Timeframe dropdown: drop the Pro crown on \"Custom\" (it opens our picker now)."
-  },
-  {
-    "group": "bcx",
-    "file": "content-scripts/all.js",
-    "find": "(0,JPt.jsx)(\"span\",{children:\"Custom\"}),(0,JPt.jsx)(Sd,{className:\"size-3\"}),(0,JPt.jsx)(yvt,{className:\"size-3\"})",
-    "replace": "(0,JPt.jsx)(\"span\",{children:\"Custom\"}),(0,JPt.jsx)(Sd,{className:\"size-3\"})",
-    "why": "Timeframe dropdown: drop the Pro crown on \"Custom\" (it opens our picker now)."
+    "find": "onSelect:t=>{const e=rt(\"h7m0wzbp\");try{t.preventDefault(),mvt(\"todoCustomTimeframe\")}catch(n){throw at(e),n}finally{ot(e)}},children:[(0,JPt.jsxs)(\"span\",{className:\"inline-flex items-center gap-1.5\",children:[(0,JPt.jsx)(\"span\",{children:\"Custom\"}),(0,JPt.jsx)(Sd,{className:\"size-3\"}),(0,JPt.jsx)(yvt,{className:\"size-3\"})]})",
+    "replace": "onSelect:t=>{const e=rt(\"h7m0wzbp\");try{globalThis.__bcx?.({feature:\"todo_custom_range\",action:\"pick\",container:$bcxTodoPortal})}catch(n){throw at(e),n}finally{ot(e)}},children:[(0,JPt.jsxs)(\"span\",{className:\"inline-flex items-center gap-1.5\",children:[(0,JPt.jsx)(\"span\",{children:\"Custom\"}),(0,JPt.jsx)(Sd,{className:\"size-3\"})]})",
+    "why": "Settings > To-Do timeframe: \"Custom\" opens our range picker, in the dropdown's own portal (the page portal is scaled into the preview while the menu is open), and loses its Pro crown."
   },
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
     "find": "Yee=({title:t,titlePlaceholder:e,onChangeTitle:n,status:r,plannedAt:a,duration:o,onChangeStatus:s,onPickPlannedAt:i,onChangeDuration:c,onRemove:l,portal:d,todo_24hr:u,autoFocusTitle:h,isRestricted:f})=>{const m=rt(\"snnav1io\");try{const m=(t,e)=>{const n=rt(\"9d5564ft\");try{return D$(t,e)??\"\"}catch(r){throw at(n),r}finally{ot(n)}},p=Oee(a),y=Pee(a),",
-    "replace": "Yee=({assignmentId:$bcxId,title:t,titlePlaceholder:e,onChangeTitle:n,status:r,plannedAt:a,duration:o,onChangeStatus:s,onPickPlannedAt:i,onChangeDuration:c,onRemove:l,portal:d,todo_24hr:u,autoFocusTitle:h,isRestricted:f})=>{const m=rt(\"snnav1io\"),$bcxS=globalThis.__bcxSessionTime,$bcxM=(0,Iee.useSyncExternalStore)($bcxS?.subscribe??(()=>()=>{}),()=>$bcxS?.get($bcxId)??null),$bcxAt=$bcxS?.at(a,$bcxM)??null;try{const m=(t,e)=>{const n=rt(\"9d5564ft\");try{return D$(t,e)??\"\"}catch(r){throw at(n),r}finally{ot(n)}},p=$bcxAt??Oee(a),y=!$bcxAt&&Pee(a),",
-    "why": "Focus-session row: show our time of day (src/bcx/sessionTime.ts) on top of its free all-day date, re-rendering when our stored times change. The row no longer reads its assignmentId prop (the caller still passes the session id), so the patch adds it back to the destructured props."
+    "replace": "Yee=({title:t,titlePlaceholder:e,onChangeTitle:n,status:r,plannedAt:a,duration:o,onChangeStatus:s,onPickPlannedAt:i,onChangeDuration:c,onRemove:l,portal:d,todo_24hr:u,autoFocusTitle:h,isRestricted:f,assignmentId:$bcxId})=>{const m=rt(\"snnav1io\");try{const $bcxS=globalThis.__bcxSessionTime,$bcxM=$bcxReact.useSyncExternalStore($bcxS?.subscribe??(()=>()=>{}),()=>$bcxS?.get($bcxId)??null),$bcxAt=$bcxS?.at(a,$bcxM)??null,$bcxPick=$bcxEl=>{$bcxEl&&globalThis.__bcx?.({feature:\"session_time_picker\",el:$bcxEl,id:$bcxId,plannedAt:a,h24:!!u,pickAllDay:()=>i(null,1439)})};const m=(t,e)=>{const n=rt(\"9d5564ft\");try{return D$(t,e)??\"\"}catch(r){throw at(n),r}finally{ot(n)}},p=$bcxAt??Oee(a),y=!$bcxAt&&Pee(a),",
+    "why": "Focus-session row: show our time of day (src/bcx/sessionTime.ts) on top of its free all-day date, re-rendering when our stored times change. The session id is the row's assignmentId prop (the session's id), which the row itself doesn't read."
   },
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
     "find": "(0,Mee.jsx)(Aee,{value:g,isAllDay:y,gated:f,",
-    "replace": "f?(0,Mee.jsx)(\"div\",{className:\"flex flex-col w-48 max-h-[340px] overflow-hidden\",ref:$el=>{$el&&globalThis.__bcx?.({feature:\"session_time_picker\",el:$el,id:$bcxId,plannedAt:a,h24:!!u,pickAllDay:()=>i(null,1439)})}}):(0,Mee.jsx)(Aee,{value:g,isAllDay:y,gated:f,",
+    "replace": "f?(0,Mee.jsx)(\"div\",{className:\"flex flex-col w-48 max-h-[340px] overflow-hidden\",ref:$bcxPick}):(0,Mee.jsx)(Aee,{value:g,isAllDay:y,gated:f,",
     "why": "Focus-session \"Planned at\" popover: our time-of-day column replaces their Pro-gated time picker; it plans the date through their free all-day path."
   },
   {
@@ -562,51 +632,44 @@
   {
     "group": "telemetry",
     "file": "background.js",
-    "find": "const e=y(\"9popk2gd\");try{",
-    "replace": "const e=y(\"9popk2gd\");try{return!1;",
+    "find": "const e=y(\"9popk2gd\");try{try{const t=await No([\"anonymous_usage_data\"",
+    "replace": "const e=y(\"9popk2gd\");try{return!1;try{const t=await No([\"anonymous_usage_data\"",
     "why": "Analytics consent check (is): always off, so PostHog capture (cs) returns before minting an analytics_id or POSTing to us.i.posthog.com (extension_installed/updated/first_run, storage_migration_completed, referral_code_captured, settings_push_aborted)."
   },
   {
     "group": "telemetry",
     "file": "content-scripts/all.js",
-    "find": "const t=rt(\"9popk2gd\");try{",
-    "replace": "const t=rt(\"9popk2gd\");try{return!1;",
+    "find": "const t=rt(\"9popk2gd\");try{try{const e=await $m([\"anonymous_usage_data\"",
+    "replace": "const t=rt(\"9popk2gd\");try{return!1;try{const e=await $m([\"anonymous_usage_data\"",
     "why": "Analytics consent check (S2): always off. PostHog capture (I2) then never POSTs to us.i.posthog.com, for every call site (script_loaded, app_used, feature_used, widget/theme/todo events, paywall and upgrade views) and the trackEvent adapter (JRe -> I2). The startup /users/merge-analytics call checks it too, so the anonymous analytics_id is never linked to an account."
   },
   {
     "group": "telemetry",
     "file": "content-scripts/viewer.js",
-    "find": "const e=te(\"9popk2gd\");try{",
-    "replace": "const e=te(\"9popk2gd\");try{return!1;",
+    "find": "const e=te(\"9popk2gd\");try{try{const t=await Gh([\"anonymous_usage_data\"",
+    "replace": "const e=te(\"9popk2gd\");try{return!1;try{const t=await Gh([\"anonymous_usage_data\"",
     "why": "Analytics consent check in the Canvas file viewer (kh): always off, so PostHog capture (xh) never POSTs to us.i.posthog.com. Its only callers are annotation events, which the file-annotations removal already stops; this keeps telemetry off if annotations come back."
   },
   {
     "group": "cloud",
     "file": "content-scripts/all.js",
-    "find": "async function sy(t){const e=rt(\"83lrudd4\");try{",
-    "replace": "async function sy(t){const e=rt(\"83lrudd4\");try{if(![\"/themes\",\"/themes/:code\",\"/themes/comments\",\"/themes/check-limits\",\"/sticker-palette\"].includes(t.path))return{data:null,error:{status:401,message:\"Not signed in\"},rewards:null};",
+    "find": "async function sy(t){const e=rt(\"83lrudd4\");try{const{path",
+    "replace": "async function sy(t){const e=rt(\"83lrudd4\");try{if(![\"/themes\",\"/themes/:code\",\"/themes/comments\",\"/themes/check-limits\",\"/sticker-palette\"].includes(t.path))return{data:null,error:{status:401,message:\"Not signed in\"},rewards:null};const{path",
     "why": "Backend API client (_p): sends with allowAnonymous, so without an account it still sends to api.bettercampus.com under a persistent X-Device-ID. That includes every to-do edit (/overrides/update, with plaintext assignment title, course code, due date and status), class schedule edits (/schedules/sync: course name, code, periods) and to-do lookups (/overrides). Answer every path locally with the 401 a signed-out request gets, except the public GETs the community theme browser reads."
   },
   {
     "group": "cloud",
     "file": "background.js",
-    "find": "async function Wo(e){const t=y(\"83lrudd4\");try{",
-    "replace": "async function Wo(e){const t=y(\"83lrudd4\");try{return{data:null,error:{status:401,message:\"Not signed in\"},rewards:null};",
+    "find": "async function Wo(e){const t=y(\"83lrudd4\");try{const{path",
+    "replace": "async function Wo(e){const t=y(\"83lrudd4\");try{return{data:null,error:{status:401,message:\"Not signed in\"},rewards:null};const{path",
     "why": "Background copy of the backend API client (Jo): its only paths are account sync (encryption key, settings push, grade history). Answer locally with the 401 a signed-out request gets."
   },
   {
     "group": "perf",
     "file": "content-scripts/all.js",
-    "find": "const t=await async function(){const t=e.runtime.getURL(\"/content-scripts/all.css\");try{return await(await fetch(t)).text()}catch(r){return n.warn(`Failed to load styles @ ${t}. Did you forget to import the stylesheet in your entrypoint?`,r),\"\"}}();o.push(t.replaceAll(\":root\",\":host\"))",
-    "replace": "const t=await(X.$css??=async function(){const t=e.runtime.getURL(\"/content-scripts/all.css\");try{return(await(await fetch(t)).text()).replaceAll(\":root\",\":host\")}catch(r){return X.$css=void 0,n.warn(`Failed to load styles @ ${t}. Did you forget to import the stylesheet in your entrypoint?`,r),\"\"}}());o.push(t)",
-    "why": "Shadow-root UIs (Z, WXT's createShadowRootUi): fetch all.css (218 KB) and rewrite its :root rules once per page instead of on every mount; a failed fetch is retried by the next mount, as before."
-  },
-  {
-    "group": "perf",
-    "file": "content-scripts/all.js",
-    "find": "const{shadowCss:s,documentCss:i}=function(t){return{documentCss:Array.from(t.matchAll(F),t=>t[0]).join(\"\").trim(),shadowCss:t.replace(F,\"\").trim()}}(o.join(\"\\n\").trim())",
-    "replace": "const{shadowCss:s,documentCss:i}=(t=>(X.$split??=new Map).get(t)??X.$split.set(t,function(t){return{documentCss:Array.from(t.matchAll(F),t=>t[0]).join(\"\").trim(),shadowCss:t.replace(F,\"\").trim()}}(t)).get(t))(o.join(\"\\n\").trim())",
-    "why": "Shadow-root UIs: split the same stylesheet into its document (@property, @font-face) and shadow rules once per page. Each split regex-scans all of all.css, a few milliseconds per mount, and a Canvas page mounts many UIs."
+    "find": "async function X(t,r){const a=Math.random().toString(36).substring(2,15),o=[];if(r.inheritStyles||o.push(\"/* WXT Shadow Root Reset */ :host{all:initial !important;}\"),r.css&&o.push(r.css),\"ui\"===t.options?.cssInjectionMode){const t=await async function(){const t=e.runtime.getURL(\"/content-scripts/all.css\");try{return await(await fetch(t)).text()}catch(r){return n.warn(`Failed to load styles @ ${t}. Did you forget to import the stylesheet in your entrypoint?`,r),\"\"}}();o.push(t.replaceAll(\":root\",\":host\"))}const{shadowCss:s,documentCss:i}=function(t){return{documentCss:Array.from(t.matchAll(F),t=>t[0]).join(\"\").trim(),shadowCss:t.replace(F,\"\").trim()}}(o.join(\"\\n\").trim())",
+    "replace": "async function X(t,r){const a=Math.random().toString(36).substring(2,15),o=[];if(r.inheritStyles||o.push(\"/* WXT Shadow Root Reset */ :host{all:initial !important;}\"),r.css&&o.push(r.css),\"ui\"===t.options?.cssInjectionMode){const t=await(X.$css??=async function(){const t=e.runtime.getURL(\"/content-scripts/all.css\");try{return(await(await fetch(t)).text()).replaceAll(\":root\",\":host\")}catch(r){return X.$css=void 0,n.warn(`Failed to load styles @ ${t}. Did you forget to import the stylesheet in your entrypoint?`,r),\"\"}}());o.push(t)}const{shadowCss:s,documentCss:i}=(t=>(X.$split??=new Map).get(t)??X.$split.set(t,function(t){return{documentCss:Array.from(t.matchAll(F),t=>t[0]).join(\"\").trim(),shadowCss:t.replace(F,\"\").trim()}}(t)).get(t))(o.join(\"\\n\").trim())",
+    "why": "Shadow-root UIs (X, WXT's createShadowRootUi): fetch all.css (218 KB) and rewrite its :root rules once per page instead of on every mount, and split it into its document (@property, @font-face) and shadow rules once per page; each split regex-scans all of all.css, a few milliseconds per mount, and a Canvas page mounts many UIs. Both caches live on the function itself. A failed fetch is retried by the next mount, as before."
   },
   {
     "group": "fixes",
@@ -625,8 +688,8 @@
   {
     "group": "fixes",
     "file": "content-scripts/all.js",
-    "find": "return{default:n?\"darker\":\"lighter\",darker:n?t:r,lighter:n?r:t}",
-    "replace": "return{default:n?\"darker\":\"lighter\",darker:n?t:globalThis.__bcxDarkPreset?.(t,e)??r,lighter:n?r:t}",
+    "find": "}(t,0,e);return{default:n?\"darker\":\"lighter\",darker:n?t:r,lighter:n?r:t}",
+    "replace": "}(t,0,e);return{default:n?\"darker\":\"lighter\",darker:n?t:globalThis.__bcxDarkPreset?.(t,e)??r,lighter:n?r:t}",
     "why": "Dark mode with a light theme: Tb (span 94p8m062) makes the dark palette from the theme's light one by taking 40% off each color's HSL lightness and graying it, so a cream page turned mid khaki under near-black text and links, and a dark sidebar got lighter. Its dark palette now comes from src/bcx/darkPreset.ts (t = the theme's palette, e = their var() resolver), falling back to theirs if ours returns nothing. Every path that applies, previews or edits a theme goes through Tb."
   },
   {
