@@ -261,6 +261,13 @@
   {
     "group": "page",
     "file": "content-scripts/all.js",
+    "find": "m=function(t){const e=rt(\"pvjtf0t1\");try{return!0===JK(t)?.icsFeeds}catch(n){throw at(e),n}finally{ot(e)}}(h?.lms_sync_type)&&void 0!==f&&!f",
+    "replace": "m=!1",
+    "why": "Todo list: drop the 'Set up calendar feed' prompt (9.9.1; LMSes synced through calendar feeds, with no feed saved yet). Its button only opened the cloud app's calendar-feeds settings, and while it showed, the list below was dimmed and unclickable."
+  },
+  {
+    "group": "page",
+    "file": "content-scripts/all.js",
     "find": "s=!0===t.feature_flags?.streak,",
     "replace": "s=!1,",
     "why": "Todo list: hide server-flagged cloud Streak block (restores hit /streak API, login/upgrade prompts)."
@@ -355,6 +362,13 @@
     "find": "\"Restores all preferences to their defaults. Your BetterCampus account/login will not be affected.\"",
     "replace": "\"Restores all preferences to their defaults.\"",
     "why": "Other tab: there is no BetterCampus account in this build."
+  },
+  {
+    "group": "cleanup",
+    "file": "content-scripts/all.js",
+    "find": "(0,uJt.jsx)(QW,{type:\"button\",variant:\"subtle\",size:\"icon-sm\",\"aria-label\":\"Notification settings\",",
+    "replace": "!1&&(0,uJt.jsx)(QW,{type:\"button\",variant:\"subtle\",size:\"icon-sm\",\"aria-label\":\"Notification settings\",",
+    "why": "Notification Center (9.9.1): hide the settings gear in its header. It only opened the cloud app's notification settings, which the menu patches make a no-op."
   },
   {
     "group": "removals",

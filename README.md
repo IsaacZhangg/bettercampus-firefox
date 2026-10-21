@@ -4,14 +4,14 @@ An unofficial Firefox port of the [BetterCampus (prev. BetterCanvas)](https://ch
 
 ## What's removed
 
-`patches.json` holds 89 string patches against the minified bundle. Each entry has a `group` and a `why`.
+`patches.json` holds 91 string patches against the minified bundle. Each entry has a `group` and a `why`.
 
 | Group | Removes |
 | --- | --- |
 | `menu` | The remote ext.bettercampus.com app shell (hub, planner, grades, notes, study, locker, explore, login). The menu opens the extension's built-in local settings panel instead. |
 | `promos` | Campaign popups, the welcome tab and referral capture on install, the what's-new tour, the uninstall survey URL, upgrade/paywall dialogs, the rate-us prompt, and the sidebar "Join free / Upgrade / Refer a friend" footer. |
-| `page` | Canvas-page injections: the Planner/Notes/Grades/Study sidebar items, the AI syllabus CTA, the calendar Sync buttons, the "+ Create" card button, AI reminder prompts (and their share of the Notification Center's unread count), cloud grade links, and the remote dashboard widgets. |
-| `cleanup` | Leftovers found by rendering the build: cloud/AI widgets in the Widgets catalog, the Calendar Sync and Streaks settings, the AI Transparency row, the "Create free account" theme wall, the GPA history dialog's Upload Transcript tab (a cloud AI import), settings text that still mentioned calendar sync or a BetterCampus account, and background settings-sync and streak requests. |
+| `page` | Canvas-page injections: the Planner/Notes/Grades/Study sidebar items, the AI syllabus CTA, the calendar Sync buttons, the To-Do list's "Set up calendar feed" prompt (which also dimmed the list until you used it), the "+ Create" card button, AI reminder prompts (and their share of the Notification Center's unread count), cloud grade links, and the remote dashboard widgets. |
+| `cleanup` | Leftovers found by rendering the build: cloud/AI widgets in the Widgets catalog, the Calendar Sync and Streaks settings, the AI Transparency row, the "Create free account" theme wall, the GPA history dialog's Upload Transcript tab (a cloud AI import), settings text that still mentioned calendar sync or a BetterCampus account, the Notification Center's settings gear (it opened the cloud app's settings), and background settings-sync and streak requests. |
 | `removals` | Fun widgets (the floating music/timer/dino/quote/breathe widgets and the Doge dashboard widget), file annotations (the PDF annotation layer in the Canvas file viewer, its tooltip overlay and its settings), and auto-rotating themes (the header button and the Appearance section). |
 | `bcx` | Hooks that hand some Pro-locked controls to our own implementations in `src/bcx/` (below). |
 | `telemetry` | PostHog usage analytics, sent straight to `us.i.posthog.com` from the background script, the page content script and the file viewer, plus the startup call that links the anonymous analytics ID to an account. Each of these first asks BetterCampus's own analytics consent check, which now always answers no, whatever the stored `anonymous_usage_data` setting says. |
@@ -154,6 +154,4 @@ To test without signing, open `about:debugging#/runtime/this-firefox`, click **L
 
 - The toolbar button does nothing on non-Canvas tabs, because it used to open the remote setup page. Visit your Canvas site and it is detected automatically, or set the URL under Other → Your Canvas URL.
 - Free plans still get one focus session per assignment ("Plan another focus session" keeps its Pro crown).
-- Planned-session reminders are still Pro-only, so a session's time doesn't trigger a notification.
-- The Notification Center's settings button does nothing: it opened the cloud app's notification settings.
-- The browser APIs differ from Chrome in a few spots: there is no eyedropper in the color picker, and the rate link still points to the Chrome Web Store.
+- Planned-session reminders are still Pro-only, so a session's time doesn't trigger a notification.- The browser APIs differ from Chrome in a few spots: there is no eyedropper in the color picker, and the rate link still points to the Chrome Web Store.
