@@ -125,6 +125,17 @@ unreviewed(
 	reviewed.contentScripts,
 );
 
+// Through 9.8.15 upstream ran all.js in every frame, only to add a font and
+// an anti-flicker style there, and this port did those two jobs with a small
+// subframe.js instead (see git history). 9.9.1 runs it in the top frame only.
+if (
+	manifest.content_scripts.some(
+		(cs: { js: string[]; all_frames?: boolean }) =>
+			cs.all_frames && cs.js.includes("content-scripts/all.js"),
+	)
+)
+	problems.push("all.js runs in subframes again: check what it does there");
+
 // Hosts the shipped files name. Most are links and docs; a new one can be a
 // new backend or analytics endpoint.
 const hosts = new Set<string>();
@@ -358,11 +369,10 @@ if (build) {
 // runs fine as a non-persistent event page.
 manifest.background = { scripts: [manifest.background.service_worker] };
 
-// Our own scripts (src/): two content scripts, in the same isolated world as
+// Our own scripts (src/): a content script, in the same isolated world as
 // all.js, and the options page's settings export/import.
 for (const [entry, file] of [
 	["src/bcx/main.ts", "content-scripts/bcx.js"],
-	["src/subframe.ts", "content-scripts/subframe.js"],
 	["src/options/options.ts", "options/options.js"],
 ]) {
 	const out = await Bun.build({
@@ -381,22 +391,10 @@ await Bun.write(
 manifest.options_ui = { page: "options/options.html", open_in_tab: true };
 
 // all.js runs in the top frame only, followed by bcx.js, whose functions its
-// patched controls call through globalThis.__bcx. In subframes, all.js used
-// to initialize all of BetterCampus only to add a font and an anti-flicker
-// style; subframe.js does just that there (see src/subframe.ts).
-const allIndex = manifest.content_scripts.findIndex((cs: { js: string[] }) =>
-	cs.js.includes("content-scripts/all.js"),
-);
-const allEntry = manifest.content_scripts[allIndex];
-delete allEntry.all_frames;
-allEntry.js.push("content-scripts/bcx.js");
-manifest.content_scripts.splice(allIndex + 1, 0, {
-	matches: allEntry.matches,
-	exclude_matches: allEntry.exclude_matches,
-	all_frames: true,
-	run_at: allEntry.run_at,
-	js: ["content-scripts/subframe.js"],
-});
+// patched controls call through globalThis.__bcx.
+manifest.content_scripts
+	.find((cs: { js: string[] }) => cs.js.includes("content-scripts/all.js"))
+	.js.push("content-scripts/bcx.js");
 
 manifest.browser_specific_settings = {
 	gecko: {
