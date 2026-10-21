@@ -609,6 +609,20 @@
     "why": "Settings > Sidebar > Hide BetterCampus Logo: apply the switch right away. Upstream left the switch off, marked the hide as pending and opened a guide (with a Chrome screenshot) asking for a click on the BetterCampus toolbar icon; only that click hid the button, and closing the guide cancelled it. With the button hidden, the menu still opens from the toolbar button on a Canvas tab and from the search bar's 'Open BetterCampus'."
   },
   {
+    "group": "fixes",
+    "file": "content-scripts/all.js",
+    "find": "return{default:n?\"darker\":\"lighter\",darker:n?t:r,lighter:n?r:t}",
+    "replace": "return{default:n?\"darker\":\"lighter\",darker:n?t:globalThis.__bcxDarkPreset?.(t,e)??r,lighter:n?r:t}",
+    "why": "Dark mode with a light theme: Tb (span 94p8m062) makes the dark palette from the theme's light one by taking 40% off each color's HSL lightness and graying it, so a cream page turned mid khaki under near-black text and links, and a dark sidebar got lighter. Its dark palette now comes from src/bcx/darkPreset.ts (t = the theme's palette, e = their var() resolver), falling back to theirs if ours returns nothing. Every path that applies, previews or edits a theme goes through Tb."
+  },
+  {
+    "group": "fixes",
+    "file": "content-scripts/all.js",
+    "find": "borders:\"#3d3d3d\",links:\"#56Caf0\",sidebar:\"var(--ic-brand-global-nav-bgd__dark)\",\"sidebar-text\":\"var(--ic-brand-global-nav-menu-item__text-color__dark)\",\"text-0\":\"#f5f5f5\",\"text-1\":\"#e2e2e2\"",
+    "replace": "borders:\"#3d3d3d\",links:\"#56Caf0\",sidebar:\"var(--ic-brand-global-nav-bgd__dark)\",\"sidebar-text\":\"var(--ic-brand-global-nav-menu-item__text-color__dark)\",\"text-0\":\"#dedede\",\"text-1\":\"#d0d0d0\"",
+    "why": "Default dark palette (Pu; the stored-defaults copy has buttons: and doesn't match): softer text, #dedede and #d0d0d0 instead of near-white #f5f5f5 and #e2e2e2. It colors dark mode without a theme and BetterCampus's own panels in dark mode (the settings menu, To-Do list, widgets), where the white glared on the dark gray."
+  },
+  {
     "group": "subframe",
     "file": "content-scripts/all.js",
     "find": "const r=performance.now(),a=Kle();if(void 0,function(){const t=at(\"1xatgiol\");try{if(TDe||\"undefined\"==typeof document||!(\"fonts\"in document))return;TDe=!0;for(const{file:t,unicodeRange:n}of DDe)try{const r=new FontFace(\"Figtree\",`url(${e.runtime.getURL(t)}) format(\"woff2\")`,{style:\"normal\",weight:\"300 900\",display:\"swap\",unicodeRange:n});document.fonts.add(r)}catch{}}catch(n){throw ot(t),n}finally{st(t)}}(),window!==window.top)return a&&setTimeout(()=>{const t=at(\"jiabc4n4\");try{return a.remove()}catch(e){throw ot(t),e}finally{st(t)}},1500),void 0;",

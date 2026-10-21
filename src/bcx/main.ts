@@ -5,3 +5,4 @@ import "./agenda";
 import "./todoRange";
 import "./sessionTime";
 import "./darkTheme";
+import "./darkPreset";

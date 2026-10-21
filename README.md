@@ -4,7 +4,7 @@ An unofficial Firefox port of the [BetterCampus (prev. BetterCanvas)](https://ch
 
 ## What's removed
 
-`patches.json` holds 87 string patches against the minified bundle, plus 5 anchors that patch nothing (group `subframe`, below). Each entry has a `group` and a `why`.
+`patches.json` holds 89 string patches against the minified bundle, plus 5 anchors that patch nothing (group `subframe`, below). Each entry has a `group` and a `why`.
 
 | Group | Removes |
 | --- | --- |
@@ -17,7 +17,7 @@ An unofficial Firefox port of the [BetterCampus (prev. BetterCanvas)](https://ch
 | `telemetry` | PostHog usage analytics, sent straight to `us.i.posthog.com` from the background script, the page content script and the file viewer, plus the startup call that links the anonymous analytics ID to an account. Each of these first asks BetterCampus's own analytics consent check, which now always answers no, whatever the stored `anonymous_usage_data` setting says. |
 | `cloud` | Requests to `api.bettercampus.com` made without an account. Upstream's backend client sends them anyway, tagged with a persistent device ID: every To-Do edit (with the assignment title, course code, due date and status in plain text), class schedule edits (course name, code and meeting times) and To-Do lookups. Both copies of the client, in the page script and the background script, now answer as a signed-out request would, except for the public reads the community theme browser needs: theme lists, single themes, comments, slot limits and sticker palettes. |
 | `perf` | Work repeated for no change in result. Each shadow-root UI BetterCampus mounts re-fetched the 218 KB `all.css` and regex-split it into document and shadow rules, a few milliseconds of work per mount, and a Canvas page mounts many. Both now happen once per page. |
-| `fixes` | Upstream behavior that ignored your settings. The sidebar's course list showed each course's code even after you renamed the course with the card's Edit button; it now shows the new name, and courses you haven't renamed still show their code. Turning on Settings → Sidebar → Hide BetterCampus Logo left the switch off and opened a guide (with a Chrome screenshot) asking you to click the BetterCampus toolbar icon; only that click hid the sidebar's BetterCampus button, and closing the guide cancelled it. The switch now hides and shows the button directly. The toolbar button on a Canvas tab and the search bar's "Open BetterCampus" still open the menu. |
+| `fixes` | Upstream behavior that ignored your settings. The sidebar's course list showed each course's code even after you renamed the course with the card's Edit button; it now shows the new name, and courses you haven't renamed still show their code. Turning on Settings → Sidebar → Hide BetterCampus Logo left the switch off and opened a guide (with a Chrome screenshot) asking you to click the BetterCampus toolbar icon; only that click hid the sidebar's BetterCampus button, and closing the guide cancelled it. The switch now hides and shows the button directly. The toolbar button on a Canvas tab and the search bar's "Open BetterCampus" still open the menu. Dark mode with a light theme used a muddy palette; it now gets a real dark one (see [Dark mode for light themes](#dark-mode-for-light-themes-srcbcxdarkpresetts)). Dark mode's default text, which BetterCampus's own panels also use, was near white (`#f5f5f5`); it is now `#dedede`. |
 | `subframe` | Nothing: these entries only pin the upstream code that `src/subframe.ts` mirrors (see [Load time](#load-time)), so the build fails if it changes. |
 
 The manifest also drops `googlecalendar.js`, `outlookcalendar.js` and `stripe.js`, which only served calendar sync and checkout. It also drops `extension-bridge.js`, which let pages on ext.bettercampus.com read the extension's settings and IndexedDB, change settings, and act in your Canvas tab. The build also leaves out 5.9 MB of packaged files that nothing references: large illustrations, the referral avatars, the grades onboarding videos, a Chrome Web Store screenshot, old icons and a dark-mode stylesheet the bundle doesn't load.
@@ -37,11 +37,26 @@ Our dialogs use the same theme variables as BetterCampus's own UI, so they follo
 
 `bun port-to-firefox.ts` compiles `src/bcx/main.ts` into a minified `content-scripts/bcx.js` and loads it after `all.js`. `bun run check` type-checks and lints it.
 
+## Dark mode for light themes (`src/bcx/darkPreset.ts`)
+
+A theme comes with one palette, light or dark. Applying a light theme also makes the palette dark mode uses, but upstream made it by taking 40% off each color's lightness and graying it. With a cream theme like cozysnoopy, the page turned mid khaki with near-black text and links, and the dark-brown sidebar got lighter, under pure white text. The settings panel's frame turned khaki too, around its dark-gray settings.
+
+A `fixes` patch now has upstream's palette function ask `darkPreset.ts` for that palette. It works in OKLCH, slot by slot:
+
+- **Backgrounds** become dark surfaces in their own hue. The page sits at 23% lightness. The light theme's steps are inverted: a slot darker than the page in light mode is lighter than it in dark mode, the way raised surfaces are.
+- **Text** becomes an off-white at 88% lightness, never pure white. Near-black ink takes the page's tint (cream for cozysnoopy), and colored text keeps a hint of its own hue. Secondary text keeps its distance from the main text.
+- **Links** keep their hue and get light enough to read (6:1 on the page).
+- **The sidebar** sits a little darker than the page. Its text is off-white too. Gradients and image overlays keep their alpha.
+
+Dark themes and light mode are unchanged. A light theme applied with an older build still has upstream's palette stored. On the next Canvas page load, `darkPreset.ts` swaps in the new one if the stored palette is still exactly what upstream generated. If you've edited it, it is left as is; apply the theme again to get the new one.
+
+Course titles on dashboard cards take the course's color. On a dark card, a navy course was nearly invisible. In dark mode, titles under 4.5:1 now get lighter in the same hue until they reach it (`darkTheme.ts`, below).
+
 ## Dark mode on Canvas's React pages (`src/bcx/darkTheme.ts`)
 
 BetterCampus's dark mode is a fixed list of Canvas selectors. Canvas's newer React pages use InstUI components instead, including discussions, New Quizzes and the newer assignment views. Their class names are hashed emotion classes (`.css-1x2y3z-view`) inserted at runtime, so those panels stayed white while their text turned light. Pasted post formatting and @mentions also disappeared or glared.
 
-`darkTheme.ts` runs whenever their `#darkcss` sheet is active, which covers dark mode and themes but not Quiz Safe Mode. It does two things:
+`darkTheme.ts` runs whenever their `#darkcss` sheet is active, which covers dark mode and themes but not Quiz Safe Mode. It does three things:
 
 - **InstUI rules:** it reads each emotion rule as it arrives. It maps:
   - light backgrounds to `--bcbackground-0/1/2` by lightness;
@@ -56,6 +71,7 @@ BetterCampus's dark mode is a fixed list of Canvas selectors. Canvas's newer Rea
   - Darker highlights the theme's text can't be read on get light text.
   - Text colors that vanish against what they sit on fall back to the theme's text color, and so does Canvas's purple @mention.
   - Elements that bring their own readable color pair, like white-on-black labels, are left alone.
+- **Dashboard card titles** in a course color too dark for a dark card get lighter, in the same hue, until they reach 4.5:1. Each pass reads the course color again, so a recolored course is judged by its new color.
 
 ## Settings backup (`src/bcx/backup.ts`, `src/options/`)
 

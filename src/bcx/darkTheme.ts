@@ -7,9 +7,19 @@
 // text onto the theme's variables. We also keep pasted post formatting
 // (black text, white paragraph backgrounds) and @mentions readable.
 // Everything is off while their `#darkcss` sheet is empty: dark mode and
-// themes off, or Quiz Safe Mode on a quiz.
+// themes off, or Quiz Safe Mode on a quiz. In dark mode, dashboard card
+// titles in a course color too dark for the card get lighter.
 
-type RGBA = { r: number; g: number; b: number; a: number };
+import {
+	contrast,
+	fromLch,
+	luminance,
+	neutral,
+	parse,
+	type RGBA,
+	toHex,
+	toLch,
+} from "./color";
 
 // "bc-" so their own stylesheet scan skips it, as it skips theirs.
 const STYLE_ID = "bc-bcx-dark-fix";
@@ -18,12 +28,16 @@ const INK = "data-bcx-ink";
 const ROOTS = '.user_content, [data-testid="reply-preview"]';
 const IN = `:is(${ROOTS})`;
 const INK_TARGETS = `${IN} :is([style*="color"], [style*="background"], font[color], [bgcolor], .mention)`;
+const CARD = ".ic-DashboardCard";
+const TITLE = "data-bcx-title";
+const TITLE_SEL = `${CARD} .ic-DashboardCard__header-title[${TITLE}]`;
 
 const STATIC_CSS = `
 ${IN} [${INK}~="fg"] { color: inherit !important; }
 ${IN} [${INK}~="bg"] { background-color: transparent !important; }
 ${IN} [${INK}~="hl"], ${IN} [${INK}~="hl"] * { color: #1b1b1f !important; }
 ${IN} [${INK}~="hl-light"], ${IN} [${INK}~="hl-light"] * { color: #f5f5f5 !important; }
+${TITLE_SEL}, ${TITLE_SEL} * { color: var(--bcx-title) !important; }
 `;
 
 // Canvas's stylesheet colors @mentions this purple, which vanishes on dark
@@ -41,56 +55,6 @@ const SIDES = [
 	"inline-start",
 	"inline-end",
 ];
-
-let probe: CanvasRenderingContext2D | null | undefined;
-const parsed = new Map<string, RGBA | null>();
-
-// Any CSS color through the canvas parser, which serializes opaque colors to
-// "#rrggbb" and others to "rgba(r, g, b, a)", and keeps the sentinel for what
-// it can't parse (var(), keywords). It reads currentcolor as black, so that
-// is skipped.
-function parse(value: string | null | undefined): RGBA | null {
-	const v = value?.trim();
-	if (!v || /currentcolor/i.test(v)) return null;
-	let hit = parsed.get(v);
-	if (hit !== undefined) return hit;
-	probe ??= document.createElement("canvas").getContext("2d");
-	if (!probe) return null;
-	probe.fillStyle = "#010203";
-	probe.fillStyle = v;
-	const out = String(probe.fillStyle);
-	const m = out.match(/^rgba\((.+)\)$/);
-	hit = null;
-	if (out.startsWith("#") && out !== "#010203")
-		hit = {
-			r: Number.parseInt(out.slice(1, 3), 16),
-			g: Number.parseInt(out.slice(3, 5), 16),
-			b: Number.parseInt(out.slice(5, 7), 16),
-			a: 1,
-		};
-	else if (m) {
-		const [r, g, b, a] = m[1].split(",").map(Number);
-		hit = { r, g, b, a };
-	}
-	parsed.set(v, hit);
-	return hit;
-}
-
-function luminance({ r, g, b }: RGBA) {
-	const lin = (c: number) => {
-		const s = c / 255;
-		return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
-	};
-	return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
-}
-
-const contrast = (x: RGBA, y: RGBA) => {
-	const [a, b] = [luminance(x), luminance(y)].sort((m, n) => n - m);
-	return (a + 0.05) / (b + 0.05);
-};
-
-const neutral = ({ r, g, b }: RGBA) =>
-	(Math.max(r, g, b) - Math.min(r, g, b)) / 255 < 0.2;
 
 // The theme declarations for one InstUI rule, or "" if it needs none. A
 // preset color left on "Use Canvas default" defines no variable, so each
@@ -252,6 +216,44 @@ function markInk() {
 	}
 }
 
+// The nearest background behind an element that hides what's under it.
+function backgroundOf(el: Element) {
+	for (let node = el.parentElement; node; node = node.parentElement) {
+		const c = parse(getComputedStyle(node).backgroundColor);
+		if (c && c.a >= 0.5) return c;
+	}
+	return null;
+}
+
+// Dashboard card titles take their course's color (their card rules set it
+// with !important), and on a dark card a navy course all but disappears.
+// Titles under 4.5:1 get lighter in the same hue until they reach it. Each
+// pass reads the colors without our mark, so a course recolored meanwhile is
+// judged by its new color.
+function markTitles() {
+	const titles = document.querySelectorAll<HTMLElement>(
+		`${CARD} .ic-DashboardCard__header-title`,
+	);
+	if (!titles.length) return;
+	for (const title of titles) title.removeAttribute(TITLE);
+	const page = palette()?.bg;
+	for (const title of titles) {
+		const shown = title.querySelector("span") ?? title;
+		const fg = parse(getComputedStyle(shown).color);
+		const bg = backgroundOf(title) ?? page;
+		if (!fg || !bg || luminance(bg) > 0.18 || contrast(fg, bg) >= 4.5) continue;
+		const lch = toLch(fg);
+		let { l } = lch;
+		let lifted = fg;
+		while (l < 1 && contrast(lifted, bg) < 4.5) {
+			l += 0.02;
+			lifted = fromLch({ ...lch, l });
+		}
+		title.style.setProperty("--bcx-title", toHex(lifted));
+		title.setAttribute(TITLE, "");
+	}
+}
+
 const style = document.createElement("style");
 style.id = STYLE_ID;
 let queued = false;
@@ -266,6 +268,7 @@ function run() {
 	if (active) {
 		scanSheets();
 		markInk();
+		markTitles();
 	}
 	if (overrides.size !== known || active !== wasActive) {
 		style.textContent = active ? STATIC_CSS + [...overrides].join("\n") : "";
