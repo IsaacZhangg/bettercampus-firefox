@@ -70,6 +70,7 @@ unreviewed(
 // An entry without `replace` only pins upstream code that src/ mirrors.
 const patches: Patch[] = await Bun.file(resolve(root, "patches.json")).json();
 const moved: string[] = [];
+const fragile: string[] = [];
 for (const [file, list] of Map.groupBy(patches, (p) => p.file)) {
 	const path = resolve(outDir, file);
 	let src = await Bun.file(path).text();
@@ -88,9 +89,14 @@ for (const [file, list] of Map.groupBy(patches, (p) => p.file)) {
 		patches[i] = applied.patch;
 		if (applied.renames.size)
 			moved.push(`#${i} [${patch.group}] ${describe(applied.renames)}`);
+		if (applied.fragile) fragile.push(`#${i} [${patch.group}]`);
 	}
 	await Bun.write(path, src);
 }
+if (fragile.length)
+	console.warn(
+		`  Warning: these anchors would match more than once once upstream renames their minified names, so lengthen them: ${fragile.join(", ")}`,
+	);
 if (moved.length) {
 	console.log(`  ${moved.length} anchors matched under renamed identifiers:`);
 	for (const line of moved) console.log(`    ${line}`);

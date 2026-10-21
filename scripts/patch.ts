@@ -18,6 +18,9 @@ export type Applied = {
 	// verbatim, otherwise with the new names in `find` and `replace`.
 	patch: Patch;
 	renames: Map<string, string>;
+	// The anchor matched verbatim but would match more than once with its
+	// minified names as wildcards, so a release that renames them breaks it.
+	fragile: boolean;
 };
 
 // Every name the minifier assigns in these bundles is 1–3 characters long.
@@ -196,14 +199,6 @@ function rename(code: string, renames: Map<string, string>) {
 // name became.
 export function applyPatch(src: string, patch: Patch): Applied | string {
 	const { find, replace } = patch;
-	const verbatim = src.split(find).length - 1;
-	if (verbatim === 1)
-		return {
-			src: replace === undefined ? src : src.replace(find, () => replace),
-			patch,
-			renames: new Map(),
-		};
-
 	const { re, names } = pattern(find);
 	const hits = [...src.matchAll(re)].filter((m) => {
 		const bound = names.map((_, k) => m.groups?.[`n${k}`] ?? "");
@@ -212,6 +207,14 @@ export function applyPatch(src: string, patch: Patch): Applied | string {
 			new Set(bound).size === bound.length
 		);
 	});
+	const verbatim = src.split(find).length - 1;
+	if (verbatim === 1)
+		return {
+			src: replace === undefined ? src : src.replace(find, () => replace),
+			patch,
+			renames: new Map(),
+			fragile: hits.length > 1,
+		};
 	if (hits.length !== 1)
 		return `anchor matched ${hits.length} times${verbatim ? " (verbatim)" : ""}`;
 
@@ -242,6 +245,7 @@ export function applyPatch(src: string, patch: Patch): Applied | string {
 			src.slice(at + hit[0].length),
 		patch: moved,
 		renames,
+		fragile: false,
 	};
 }
 

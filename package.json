@@ -8,7 +8,7 @@
 		"lint:ext": "web-ext lint --source-dir firefox",
 		"sign": "web-ext sign --source-dir firefox --artifacts-dir dist --channel unlisted",
 		"sign:1p": "op run --env-file=amo.env -- bun run sign",
-		"check": "tsc --noEmit && biome check src scripts port-to-firefox.ts"
+		"check": "tsc --noEmit && biome check src scripts port-to-firefox.ts && bun scripts/check-patches.ts"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.2.4",
