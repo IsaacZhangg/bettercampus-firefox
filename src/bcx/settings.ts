@@ -36,6 +36,7 @@ const SKIP = new Set([
 	"study_notebooks_cache",
 	"theme_sticker_palette",
 	"announcements_config",
+	"cached_ics_feed_count",
 	"errors",
 	// Server-pushed flags and the hidden debug mode.
 	"feature_flags",
@@ -45,8 +46,10 @@ const SKIP = new Set([
 	"device_id",
 	"analytics_id",
 	"encryption_key",
+	"encryption_key_user_id",
 	"auth",
 	"auth_state",
+	"auth_intent",
 	"token",
 	"id",
 	// Per-install bookkeeping that upstream's install handler writes itself.
