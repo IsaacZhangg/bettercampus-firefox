@@ -20,7 +20,7 @@ An unofficial Firefox port of the [BetterCampus (prev. BetterCanvas)](https://ch
 | `fixes` | Upstream behavior that ignored your settings. The sidebar's course list showed each course's code even after you renamed the course with the card's Edit button; it now shows the new name, and courses you haven't renamed still show their code. Turning on Settings → Sidebar → Hide BetterCampus Logo left the switch off and opened a guide (with a Chrome screenshot) asking you to click the BetterCampus toolbar icon; only that click hid the sidebar's BetterCampus button, and closing the guide cancelled it. The switch now hides and shows the button directly. The toolbar button on a Canvas tab and the search bar's "Open BetterCampus" still open the menu. Dark mode with a light theme used a muddy palette; it now gets a real dark one (see [Dark mode for light themes](#dark-mode-for-light-themes-srcbcxdarkpresetts)). Dark mode's default text, which BetterCampus's own panels also use, was near white (`#f5f5f5`); it is now `#dedede`. |
 | `subframe` | Nothing: these entries only pin the upstream code that `src/subframe.ts` mirrors (see [Load time](#load-time)), so the build fails if it changes. |
 
-The manifest also drops `googlecalendar.js`, `outlookcalendar.js` and `stripe.js`, which only served calendar sync and checkout. It also drops `extension-bridge.js`, which let pages on ext.bettercampus.com read the extension's settings and IndexedDB, change settings, and act in your Canvas tab. The build also leaves out 5.9 MB of packaged files that nothing references: large illustrations, the referral avatars, the grades onboarding videos, a Chrome Web Store screenshot, old icons and a dark-mode stylesheet the bundle doesn't load.
+The manifest also drops `googlecalendar.js`, `outlookcalendar.js` and `stripe.js`, which only served calendar sync and checkout. It also drops `extension-bridge.js`, which let pages on ext.bettercampus.com read the extension's settings and IndexedDB, change settings, and act in your Canvas tab, and `app-bridge.js` (new in 9.9.1), which relays sign-in, sign-out, sign-in codes and calendar connection from app.bettercampus.com to the extension. The build also leaves out 5.9 MB of packaged files that nothing references: large illustrations, the referral avatars, the grades onboarding videos, a Chrome Web Store screenshot, old icons and a dark-mode stylesheet the bundle doesn't load.
 
 ## Our own versions of Pro features (`src/bcx/`)
 
@@ -119,18 +119,37 @@ What remains is `all.js` initializing in each top-level page, which its LMS dete
 
 ```sh
 bun install
-bun port-to-firefox.ts [path/to/chrome.zip]
+bun run upstream -- --download
+bun port-to-firefox.ts [--update-patches] [path/to/chrome.zip]
 ```
 
-This repo doesn't include BetterCampus itself. Supply the extension's Chrome Web Store package as a `.zip`; the patches target version 9.8.15. The script uses the `*Chrome*.zip` in this directory unless you pass a path. It outputs `firefox/` (unpacked) and `dist/bettercampus-firefox-<version>.xpi`. It also does the Firefox manifest conversion: `background.scripts`, `browser_specific_settings.gecko`, and removing `update_url` and `_metadata/`.
+This repo doesn't include BetterCampus itself. `bun run upstream` asks the Chrome Web Store for its current version; with `--download` it also saves the package here as `BetterCampus-<version>-Chrome.zip`. The patches target the version in `upstream.json`. The build uses the `*Chrome*.zip` in this directory unless you pass a path. It outputs `firefox/` (unpacked) and `dist/bettercampus-firefox-<version>.xpi`. It also does the Firefox manifest conversion: `background.scripts`, `browser_specific_settings.gecko`, and removing `update_url` and `_metadata/`.
 
-Patch anchors are minified code, so a new upstream version will likely break some of them. The script stops and names each patch whose anchor no longer matches exactly once; those need re-deriving against the new bundle. A `subframe` anchor that stops matching means upstream changed what `all.js` does in subframes: update `src/subframe.ts` to match before the anchor. Prefer anchors on the stable 8-character `at("…")` instrumentation ids and string literals.
+Patch anchors are minified code, and each upstream release renames most minified variables: 9.9.1 turned `Xgt=async t=>{const e=at("03zsvda5")` into `wit=async t=>{const e=rt("03zsvda5")`. So an anchor that no longer matches verbatim is tried again with the minifier's names as wildcards (`scripts/patch.ts`). Those are the 1–3 character identifiers that aren't property names, object keys or reserved words. A name that repeats has to map to the same new name each time, and two names can't map to one. If that matches exactly once, the patch applies with its replacement rewritten to the new names, and `--update-patches` writes the moved anchor back to `patches.json`. A replacement may only use minified names its own anchor contains, since nothing says what any other name became. Such a patch is refused when names change, and `bun scripts/check-patches.ts` flags it ahead of time. Our own locals in a replacement use `$bcx…` names, which are too long to be the minifier's.
+
+Anything else stops the build, which lists every problem at once: each anchor upstream rewrote, or that matches more than once with its names as wildcards, and each unreviewed addition (see [Automatic updates](#automatic-updates)). Those anchors need re-deriving against the new bundle. A `subframe` anchor that stops matching means upstream changed what `all.js` does in subframes: update `src/subframe.ts` to match before the anchor. Prefer anchors on the stable 8-character `at("…")` instrumentation ids and string literals. When the whole port succeeds, `--update-patches` records the new version in `upstream.json`.
 
 AMO's linter refuses to parse any JS file of 5 MiB or more, which blocks signing, and the patched `all.js` is 5.19 MiB. The profiler and dead-code passes above bring it to 3.7 MiB, and the build fails if any file ends up over the limit. Those passes take most of the build's 20 seconds. `bun run lint:ext` runs the same linter as AMO.
 
+## Automatic updates
+
+`.github/workflows/port-upstream.yml` checks the Chrome Web Store every morning (08:41 UTC).
+
+- **A release that ports cleanly.** The workflow builds it, runs AMO's linter, and signs it on AMO as an unlisted add-on. The signed `.xpi` is attached to the run, where GitHub keeps it for 90 days; the repo doesn't publish it anywhere else. The workflow then commits the moved anchors and the new version, tags the commit `v<version>`, and opens an issue that @-mentions you with the download link. Install it as in [Install](#install), step 3.
+- **A release that doesn't.** The workflow opens an issue for that version listing every problem the build found, with the steps to port it by hand. Later runs update that issue instead of opening more. Pushing the finished port to `main` (with its version in `upstream.json`) makes the workflow sign it.
+- **A rebuild.** Actions → Port upstream release → Run workflow, with a build number, signs the current version again as `<version>.<build>`, for example after a change to `src/`.
+
+Each version is signed once: a run skips any version that already has its `v<version>` tag.
+
+**Setup.** Add your AMO API credentials ([Manage API Keys](https://addons.mozilla.org/developers/addon/api/key/)) as the repository secrets `WEB_EXT_API_KEY` and `WEB_EXT_API_SECRET` under Settings → Secrets and variables → Actions. Without them the workflow stops before signing and says so in an issue. GitHub disables scheduled workflows in a public repo after 60 days with no activity in it. The workflow's own commits count, but if a quiet stretch upstream outlasts that, re-enable it under Actions.
+
+**Upstream review list (`upstream.json`).** Besides the version `patches.json` is for, `upstream.json` lists what of upstream has been reviewed: its manifest keys, its permissions, the content scripts we ship, and every host the shipped files name. A release that adds any of them stops the build until someone looks at it, then lists it there or strips it. That way, an automatic port can't quietly ship another bridge to bettercampus.com, a new permission or a new analytics endpoint.
+
+**What it can't catch.** The port carries over the existing patches. A new upsell, AI or cloud feature that a release builds on reviewed hosts and existing code stays in until a patch removes it, so look over each release once it's installed.
+
 ## Install
 
-Release Firefox only installs add-ons signed by Mozilla. Signing it as an **unlisted** (self-distributed) add-on is free and automated; it isn't published on AMO.
+Release Firefox only installs add-ons signed by Mozilla. Signing it as an **unlisted** (self-distributed) add-on is free and automated; it isn't published on AMO. With [automatic updates](#automatic-updates) set up, the workflow does steps 1 and 2 for each new release; download its `.xpi` from the run and go to step 3.
 
 1. Sign in at [addons.mozilla.org](https://addons.mozilla.org/developers/). AMO requires two-factor authentication on the account.
 2. Sign the build using one of these:
@@ -144,7 +163,7 @@ Release Firefox only installs add-ons signed by Mozilla. Signing it as an **unli
    - **CLI with 1Password:** save the keys in 1Password as an **API Credential** item: the JWT issuer goes in **username** and the JWT secret in **credential**. Point the two references in `amo.env` at that item; they default to `op://Private/AMO/…`, and each field's **Copy Secret Reference** gives the exact path. Turn on 1Password → Settings → Developer → **Integrate with 1Password CLI**, then run `bun run sign:1p`. `op run` resolves the references and passes the keys only to the signing process.
 3. In Firefox, open `about:addons` → ⚙ → **Install Add-on From File…** and pick the signed `.xpi`.
 
-AMO signs each version number once per add-on ID. To sign a rebuild of the same upstream version, build with a fourth version part: `BUILD=2 bun run build` makes `9.8.15.2`. Installing a newer signed build replaces the old one and keeps your settings, since the add-on ID stays the same. If you remove the old one first, opening Canvas brings them back from the [settings backup](#settings-backup-srcbcxbackupts-srcoptions).
+AMO signs each version number once per add-on ID. To sign a rebuild of the same upstream version, build with a fourth version part: `BUILD=2 bun run build` turns `9.9.1` into `9.9.1.2`. Installing a newer signed build replaces the old one and keeps your settings, since the add-on ID stays the same. If you remove the old one first, opening Canvas brings them back from the [settings backup](#settings-backup-srcbcxbackupts-srcoptions).
 
 Unlisted add-ons can still be manually reviewed by Mozilla at any time, and reviewers may ask for unminified source, which this port doesn't have.
 
