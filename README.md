@@ -138,13 +138,49 @@ AMO's linter refuses to parse any JS file of 5 MiB or more, which blocks signing
 - **A release that doesn't.** The workflow opens an issue for that version listing every problem the build found, with the steps to port it by hand. Later runs update that issue instead of opening more. Pushing the finished port to `main` (with its version in `upstream.json`) makes the workflow sign it.
 - **A rebuild.** Actions → Port upstream release → Run workflow, with a build number, signs the current version again as `<version>.<build>`, for example after a change to `src/`.
 
-Each version is signed once: a run skips any version that already has its `v<version>` tag.
+Each version is signed once: a run skips any version that already has its `v<version>` tag, including one that `bun run release` made.
 
-**Setup.** Add your AMO API credentials ([Manage API Keys](https://addons.mozilla.org/developers/addon/api/key/)) as the repository secrets `WEB_EXT_API_KEY` and `WEB_EXT_API_SECRET` under Settings → Secrets and variables → Actions. Without them the workflow stops before signing and says so in an issue. GitHub disables scheduled workflows in a public repo after 60 days with no activity in it. The workflow's own commits count, but if a quiet stretch upstream outlasts that, re-enable it under Actions.
+**Setup.** Add your AMO API credentials ([Manage API Keys](https://addons.mozilla.org/developers/addon/api/key/)) as the repository secrets `WEB_EXT_API_KEY` and `WEB_EXT_API_SECRET` under Settings → Secrets and variables → Actions, or with the commands in [Releases](#releases). Without them the workflow stops before signing and says so in an issue. GitHub disables scheduled workflows in a public repo after 60 days with no activity in it. The workflow's own commits count, but if a quiet stretch upstream outlasts that, re-enable it under Actions.
 
 **Upstream review list (`upstream.json`).** Besides the version `patches.json` is for, `upstream.json` lists what of upstream has been reviewed: its manifest keys, its permissions, the content scripts we ship, and every host the shipped files name. A release that adds any of them stops the build until someone looks at it, then lists it there or strips it. That way, an automatic port can't quietly ship another bridge to bettercampus.com, a new permission or a new analytics endpoint.
 
 **What it can't catch.** The port carries over the existing patches. A new upsell, AI or cloud feature that a release builds on reviewed hosts and existing code stays in until a patch removes it, so look over each release once it's installed.
+
+## Releases
+
+The **Sign release** workflow (`.github/workflows/sign.yml`) signs every GitHub release with AMO. You build locally and the release carries the unsigned `.xpi`. New upstream versions don't need this: [automatic updates](#automatic-updates) build and sign them in CI.
+
+To publish a build of your own as a release:
+
+```sh
+bun run release
+```
+
+`release.ts` runs these steps:
+
+- It stops unless the working tree is clean and HEAD matches its pushed branch.
+- It builds and runs `lint:ext`.
+- It creates release `v<version>` on HEAD with `dist/bettercampus-firefox-<version>.xpi` attached. The notes list the commit subjects since the last release.
+
+The fourth version part is one past the highest `v<upstream>.n` release, or none for an upstream version's first release. `BUILD=n` overrides it. AMO signed 9.8.15 through 9.8.15.6 before releases existed, so the first release of 9.8.15 needs `BUILD=7 bun run release`.
+
+The workflow then:
+
+- checks that the tag matches the version in the build's manifest;
+- lints the build;
+- signs it as unlisted;
+- replaces the unsigned `.xpi` with `bettercampus-firefox-<version>-signed.xpi`.
+
+Signing takes 2–6 minutes; `gh run watch` follows it.
+
+One-time setup: add the AMO API credentials as the repository secrets `WEB_EXT_API_KEY` and `WEB_EXT_API_SECRET`, which [automatic updates](#automatic-updates) use too. (The older names `AMO_JWT_ISSUER` and `AMO_JWT_SECRET` still work.) From the 1Password item `amo.env` points at (adjust the paths if yours differ):
+
+```sh
+op read -n "op://Private/AMO/username" | gh secret set WEB_EXT_API_KEY
+op read -n "op://Private/AMO/credential" | gh secret set WEB_EXT_API_SECRET
+```
+
+AMO won't sign a version twice. If a run fails after AMO has already signed the version, a rerun fails too. Download the signed file from that version's page in the [Developer Hub](https://addons.mozilla.org/developers/addons) and attach it to the release yourself.
 
 ## Install
 
@@ -152,6 +188,7 @@ Release Firefox only installs add-ons signed by Mozilla. Signing it as an **unli
 
 1. Sign in at [addons.mozilla.org](https://addons.mozilla.org/developers/). AMO requires two-factor authentication on the account.
 2. Sign the build using one of these:
+   - **GitHub release:** `bun run release` (see [Releases](#releases)). The signed `.xpi` is attached to the release a few minutes later.
    - **Web upload:** [Submit a New Add-on](https://addons.mozilla.org/developers/addon/submit/distribution), choose **On your own**, and upload `dist/bettercampus-firefox-<version>.xpi`. When validation finishes, download the signed file from the version's page.
    - **CLI:** create API credentials at [Manage API Keys](https://addons.mozilla.org/developers/addon/api/key/), then put them in `.env` (git-ignored):
      ```sh

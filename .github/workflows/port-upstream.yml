@@ -39,8 +39,10 @@ jobs:
       OWNER: ${{ github.repository_owner }}
       RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.4.3
       - run: bun install --frozen-lockfile
 
       # Each signed version gets a v<version> tag, so a version is only
@@ -80,8 +82,8 @@ jobs:
         id: sign
         if: steps.port.outcome == 'success'
         env:
-          WEB_EXT_API_KEY: ${{ secrets.WEB_EXT_API_KEY }}
-          WEB_EXT_API_SECRET: ${{ secrets.WEB_EXT_API_SECRET }}
+          WEB_EXT_API_KEY: ${{ secrets.WEB_EXT_API_KEY || secrets.AMO_JWT_ISSUER }}
+          WEB_EXT_API_SECRET: ${{ secrets.WEB_EXT_API_SECRET || secrets.AMO_JWT_SECRET }}
         run: |
           if [ -z "$WEB_EXT_API_KEY" ] || [ -z "$WEB_EXT_API_SECRET" ]; then
             echo "::error::Add your AMO API credentials as the WEB_EXT_API_KEY and WEB_EXT_API_SECRET repository secrets."
