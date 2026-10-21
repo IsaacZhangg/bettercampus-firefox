@@ -1,0 +1,78 @@
+name: Sign release
+
+# Signs a release's build with AMO (unlisted) and swaps the unsigned .xpi for
+# the signed one. CI can't build the extension itself: BetterCampus's own
+# package isn't in this repo, so `bun run release` builds locally and attaches
+# bettercampus-firefox-<version>.xpi to a v<version> release.
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sign-${{ github.event.release.tag_name }}
+
+jobs:
+  sign:
+    runs-on: ubuntu-latest
+    # AMO usually signs an unlisted version in 2–6 minutes.
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      TAG: ${{ github.event.release.tag_name }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.4.3
+      - run: bun install --frozen-lockfile
+
+      # AMO signs each version once, so a tag that doesn't match the build
+      # would spend a version number on the wrong file.
+      - name: Unpack the release's build
+        run: |
+          if [[ ! "$TAG" =~ ^v[0-9]+(\.[0-9]+){1,3}$ ]]; then
+            echo "::error::Tag $TAG isn't v<version>"
+            exit 1
+          fi
+          version="${TAG#v}"
+          xpi="bettercampus-firefox-$version.xpi"
+          gh release download "$TAG" --pattern "$xpi" --dir unsigned
+          built=$(unzip -p "unsigned/$xpi" manifest.json | jq -r .version)
+          if [[ "$built" != "$version" ]]; then
+            echo "::error::$xpi is version $built, but the tag is $TAG"
+            exit 1
+          fi
+          unzip -q "unsigned/$xpi" -d firefox
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+
+      - run: bun run lint:ext
+
+      - name: Sign with AMO
+        env:
+          WEB_EXT_API_KEY: ${{ secrets.AMO_JWT_ISSUER }}
+          WEB_EXT_API_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+        run: |
+          : "${WEB_EXT_API_KEY:?Add the AMO_JWT_ISSUER repository secret}"
+          : "${WEB_EXT_API_SECRET:?Add the AMO_JWT_SECRET repository secret}"
+          bun run sign
+
+      # web-ext names the signed file <hash>-<version>.xpi.
+      - name: Replace the unsigned build with the signed one
+        run: |
+          shopt -s nullglob
+          signed=(dist/*.xpi)
+          if (( ${#signed[@]} != 1 )); then
+            echo "::error::Expected one signed .xpi in dist/, found ${#signed[@]}"
+            exit 1
+          fi
+          out="dist/bettercampus-firefox-$VERSION-signed.xpi"
+          mv "${signed[0]}" "$out"
+          gh release upload "$TAG" "$out" --clobber
+          gh release delete-asset "$TAG" "bettercampus-firefox-$VERSION.xpi" --yes

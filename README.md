@@ -128,12 +128,47 @@ Patch anchors are minified code, so a new upstream version will likely break som
 
 AMO's linter refuses to parse any JS file of 5 MiB or more, which blocks signing, and the patched `all.js` is 5.19 MiB. The profiler and dead-code passes above bring it to 3.7 MiB, and the build fails if any file ends up over the limit. Those passes take most of the build's 20 seconds. `bun run lint:ext` runs the same linter as AMO.
 
+## Releases
+
+The **Sign release** workflow (`.github/workflows/sign.yml`) signs every GitHub release with AMO. CI can't build the extension, since this repo doesn't include BetterCampus, so you build locally and the release carries the unsigned `.xpi`:
+
+```sh
+bun run release
+```
+
+`release.ts` runs these steps:
+
+- It stops unless the working tree is clean and HEAD matches its pushed branch.
+- It builds and runs `lint:ext`.
+- It creates release `v<version>` on HEAD with `dist/bettercampus-firefox-<version>.xpi` attached. The notes list the commit subjects since the last release.
+
+The fourth version part is one past the highest `v<upstream>.n` release, or none for an upstream version's first release. `BUILD=n` overrides it. AMO signed 9.8.15 through 9.8.15.6 before releases existed, so the first release of 9.8.15 needs `BUILD=7 bun run release`.
+
+The workflow then:
+
+- checks that the tag matches the version in the build's manifest;
+- lints the build;
+- signs it as unlisted;
+- replaces the unsigned `.xpi` with `bettercampus-firefox-<version>-signed.xpi`.
+
+Signing takes 2–6 minutes; `gh run watch` follows it.
+
+One-time setup: add the AMO API credentials as the repository secrets `AMO_JWT_ISSUER` and `AMO_JWT_SECRET`. From the 1Password item `amo.env` points at (adjust the paths if yours differ):
+
+```sh
+op read "op://Private/AMO/username" | gh secret set AMO_JWT_ISSUER
+op read "op://Private/AMO/credential" | gh secret set AMO_JWT_SECRET
+```
+
+AMO won't sign a version twice. If a run fails after AMO has already signed the version, a rerun fails too. Download the signed file from that version's page in the [Developer Hub](https://addons.mozilla.org/developers/addons) and attach it to the release yourself.
+
 ## Install
 
 Release Firefox only installs add-ons signed by Mozilla. Signing it as an **unlisted** (self-distributed) add-on is free and automated; it isn't published on AMO.
 
 1. Sign in at [addons.mozilla.org](https://addons.mozilla.org/developers/). AMO requires two-factor authentication on the account.
 2. Sign the build using one of these:
+   - **GitHub release:** `bun run release` (see [Releases](#releases)). The signed `.xpi` is attached to the release a few minutes later.
    - **Web upload:** [Submit a New Add-on](https://addons.mozilla.org/developers/addon/submit/distribution), choose **On your own**, and upload `dist/bettercampus-firefox-<version>.xpi`. When validation finishes, download the signed file from the version's page.
    - **CLI:** create API credentials at [Manage API Keys](https://addons.mozilla.org/developers/addon/api/key/), then put them in `.env` (git-ignored):
      ```sh
