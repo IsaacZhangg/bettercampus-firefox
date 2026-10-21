@@ -2,77 +2,77 @@
   {
     "group": "menu",
     "file": "content-scripts/all.js",
-    "find": "z=Y5t(M?.reason)",
-    "replace": "z=!0",
-    "why": "Force the shell's built-in offline/blocked mode: local 'Edit Canvas' panel (wCe->oot offline) renders without a remote rect, and effect chdztu9p rewrites any non-popup page to popup:themes on open."
+    "find": "Z=ect(X?.reason)",
+    "replace": "Z=!0",
+    "why": "Force the shell's built-in offline/blocked mode: local 'Edit Canvas' panel (wCe->oot offline) renders without a remote rect, and effect 6wj9afr8 rewrites any non-popup page to popup:themes on open."
   },
   {
     "group": "menu",
     "file": "content-scripts/all.js",
-    "find": "children:[o&&(0,zze.jsx)(s2,{",
-    "replace": "children:[!1&&(0,zze.jsx)(s2,{",
+    "find": "children:[o&&(0,jZt.jsx)(c8,{",
+    "replace": "children:[!1&&(0,jZt.jsx)(c8,{",
     "why": "Never mount (or prewarm) the remote ext.bettercampus.com/core/hibernate iframe that hosts hub/planner/study/login/upgrade."
   },
   {
     "group": "menu",
     "file": "content-scripts/all.js",
-    "find": "verdict:M,",
+    "find": "verdict:X,",
     "replace": "verdict:null,",
     "why": "Suppress the 'This page is blocking BetterCampus / pages unreachable' dialog that would otherwise appear from a stored or live verdict."
   },
   {
     "group": "menu",
     "file": "content-scripts/all.js",
-    "find": "Y=!0===P.hub_tour_active",
-    "replace": "Y=!1",
+    "find": "At=!0===_.hub_tour_active",
+    "replace": "At=!1",
     "why": "Hub tour lives in the remote app; a stuck hub_tour_active would permanently dim the local panel via Nze."
   },
   {
     "group": "menu",
     "file": "content-scripts/all.js",
-    "find": "\"string\"==typeof t.data?.page&&(it.clear(),B(t.data.page),R.current=t.data.page)",
-    "replace": "!1&&(it.clear(),B(t.data.page),R.current=t.data.page)",
+    "find": "\"string\"==typeof t.data?.page&&(Jt.clear(),tt(t.data.page),it.current=t.data.page)",
+    "replace": "!1&&(Jt.clear(),tt(t.data.page),it.current=t.data.page)",
     "why": "Ignore ephemeral page requests on the toggle message (any origin can post it); an ephemeral page O disables the local panel (q=!O&&...)."
   },
   {
     "group": "menu",
     "file": "content-scripts/all.js",
-    "find": "Xgt=async t=>{const e=at(\"03zsvda5\");try{await cDe(),",
-    "replace": "Xgt=async t=>{const e=at(\"03zsvda5\");try{return;await cDe(),",
+    "find": "wit=async t=>{const e=rt(\"03zsvda5\");try{await eJt(),",
+    "replace": "wit=async t=>{const e=rt(\"03zsvda5\");try{return;await eJt(),",
     "why": "openEmbeddedAppEphemeral is only used for app:login / app:upgrade (sign-in, sign-up, Zgt paywall, openAuthModal relay); make it a no-op."
   },
   {
     "group": "menu",
     "file": "content-scripts/all.js",
-    "find": "Vgt=async(t,e)=>{const n=at(\"c3e3neqd\");try{",
-    "replace": "Vgt=async(t,e)=>{const n=at(\"c3e3neqd\");try{if(\"string\"!=typeof t||!t.startsWith(\"popup:\")){if(\"app:hub\"!==t)return;t=\"popup:themes\"}",
+    "find": "git=async(t,e)=>{const n=rt(\"c3e3neqd\");try{",
+    "replace": "git=async(t,e)=>{const n=rt(\"c3e3neqd\");try{if(\"string\"!=typeof t||!t.startsWith(\"popup:\")){if(\"app:hub\"!==t)return;t=\"popup:themes\"}",
     "why": "openEmbeddedAppPage: 'open the hub' becomes 'open local menu on Themes'; every other app:* page (planner, grades, study, notes, locker, course, create, settings/billing) becomes a no-op."
   },
   {
     "group": "menu",
     "file": "background.js",
-    "find": "const t=Ks(\"/welcome\",{setup:\"lms-url\"})",
-    "replace": "return;const t=Ks(\"/welcome\",{setup:\"lms-url\"})",
+    "find": "const t=Qs(\"/welcome\",{setup:\"lms-url\"})",
+    "replace": "return;const t=Qs(\"/welcome\",{setup:\"lms-url\"})",
     "why": "Toolbar click on a non-LMS tab opened the remote ext.bettercampus.com/welcome setup page; make it a no-op (LMS auto-detection via ZGe() and the Other tab's custom-domain field cover setup)."
   },
   {
     "group": "promos",
     "file": "background.js",
-    "find": "function Ls(){const e=y(\"8cntnbxg\");try{",
-    "replace": "function Ls(){const e=y(\"8cntnbxg\");try{return;",
+    "find": "function Hs(e=Promise.resolve()){const t=y(\"8cntnbxg\");try{",
+    "replace": "function Hs(e=Promise.resolve()){const t=y(\"8cntnbxg\");try{return;",
     "why": "Campaign/interval popup engine: skip init (no campaign fetches, ledger flushes, CAMPAIGN_*/INTERVAL_* listener, tab cleanup hooks)"
   },
   {
     "group": "promos",
     "file": "background.js",
-    "find": "await Qd(),\"install\"===e?.reason){",
-    "replace": "await Qd(),!1){",
+    "find": "await wf(),\"install\"===e?.reason){",
+    "replace": "await wf(),!1){",
     "why": "Install: no welcome tab, Canvas tab reload, referral-code capture, install analytics, or fresh_install_tour_pending; migrations above still run"
   },
   {
     "group": "promos",
     "file": "background.js",
-    "find": "if(\"update\"===e?.reason&&r===Bi[0]){",
+    "find": "if(\"update\"===e?.reason&&a===Xi[0]){",
     "replace": "if(!1){",
     "why": "Update: don't set should_show_spotlight (what's-new tour) or flip auth_state"
   },
@@ -86,142 +86,135 @@
   {
     "group": "promos",
     "file": "content-scripts/all.js",
-    "find": "async function lc(t){const n=at(\"2vox8qoq\");try{",
-    "replace": "async function lc(t){const n=at(\"2vox8qoq\");try{return{status:\"merge\"===t?.command?\"ok\":\"empty\"};",
+    "find": "async function fc(t){const n=rt(\"2vox8qoq\");try{",
+    "replace": "async function fc(t){const n=rt(\"2vox8qoq\");try{return{status:\"merge\"===t?.command?\"ok\":\"empty\"};",
     "why": "Content campaign client: answer locally (merge ok, else empty) without messaging background or registering CAMPAIGN_DOCUMENT listener"
   },
   {
     "group": "promos",
     "file": "content-scripts/all.js",
-    "find": "async function uc(t){const n=at(\"2s7gj845\");try{",
-    "replace": "async function uc(t){const n=at(\"2s7gj845\");try{return{status:\"ok\",occurrence:null};",
+    "find": "async function mc(t){const n=rt(\"2s7gj845\");try{",
+    "replace": "async function mc(t){const n=rt(\"2s7gj845\");try{return{status:\"ok\",occurrence:null};",
     "why": "Interval (every-N-menu-opens) popups: no occurrence ever due"
   },
   {
     "group": "promos",
     "file": "content-scripts/all.js",
-    "find": "afe=async()=>{const t=at(\"om8dc3pc\");try{",
-    "replace": "afe=async()=>{const t=at(\"om8dc3pc\");try{return;",
+    "find": "che=async()=>{const t=rt(\"om8dc3pc\");try{",
+    "replace": "che=async()=>{const t=rt(\"om8dc3pc\");try{return;",
     "why": "Product tour / spotlight mount + hub handoff (opens app:hub); also stops '[BetterCampus Tour] evaluation' console spam"
   },
   {
     "group": "promos",
     "file": "content-scripts/all.js",
-    "find": "Zgt=t=>{const e=at(\"1qc7jm1g\");try{",
-    "replace": "Zgt=t=>{const e=at(\"1qc7jm1g\");try{return;",
+    "find": "zit=t=>{const e=rt(\"1qc7jm1g\");try{",
+    "replace": "zit=t=>{const e=rt(\"1qc7jm1g\");try{return;",
     "why": "Single choke point for opening app:upgrade (upgrade modal); all Upgrade buttons, tbt/Kgt gates, bridge UpgradeModal become no-ops"
   },
   {
     "group": "promos",
     "file": "content-scripts/all.js",
-    "find": "async function oCe(t,e){const n=at(\"n34fby7i\");try{",
-    "replace": "async function oCe(t,e){const n=at(\"n34fby7i\");try{return;",
+    "find": "async function Rit(t,e){const n=rt(\"n34fby7i\");try{",
+    "replace": "async function Rit(t,e){const n=rt(\"n34fby7i\");try{return;",
     "why": "Auth/upgrade modal opener (signup/login/upgrade, incl. iframe openAuthModal relay): no-op. OVERLAP with login investigator"
   },
   {
     "group": "promos",
     "file": "content-scripts/all.js",
-    "find": "lCt=async(t,e,n)=>{const r=at(\"gnueesus\");try{",
-    "replace": "lCt=async(t,e,n)=>{const r=at(\"gnueesus\");try{return n?.(),void 0;",
-    "why": "Restricted-feature paywall dialog (all upgrade_*_viewed variants, accountRequired): never shown; fire onClose immediately"
-  },
-  {
-    "group": "promos",
-    "file": "content-scripts/all.js",
-    "find": "const t=at(\"68nalgy8\");try{aue()}",
-    "replace": "const t=at(\"68nalgy8\");try{}",
+    "find": "const t=rt(\"68nalgy8\");try{Fpe()}",
+    "replace": "const t=rt(\"68nalgy8\");try{}",
     "why": "feedbackPrompt feature (nue.load): no feedback/rate-us card in dashboard (also kills CWS/Edge review link + OPEN_STRIPE sender)"
   },
   {
     "group": "promos",
     "file": "content-scripts/all.js",
-    "find": "ude=({sidebarCollapsed:t})=>{const e=at(\"kdisf67m\");try{",
-    "replace": "ude=({sidebarCollapsed:t})=>{const e=at(\"kdisf67m\");try{return null;",
+    "find": "vpe=({sidebarCollapsed:t})=>{const e=rt(\"kdisf67m\");try{",
+    "replace": "vpe=({sidebarCollapsed:t})=>{const e=rt(\"kdisf67m\");try{return null;",
     "why": "Sidebar footer: Join free / 7 days free / Upgrade / Refer a friend / Pro trial CTA + trial countdown + 'Buggy?' button. OVERLAP with login/sidebar investigators"
   },
   {
     "group": "promos",
     "file": "content-scripts/all.js",
-    "find": "0===xt&&(0,JNe.jsxs)(\"button\",{type:\"button\",onClick:()=>{const t=at(\"24k25r66\")",
-    "replace": "!1&&(0,JNe.jsxs)(\"button\",{type:\"button\",onClick:()=>{const t=at(\"24k25r66\")",
+    "find": "0===ht&&(0,$At.jsxs)(\"button\",{type:\"button\",onClick:()=>{const t=rt(\"lh89dvng\")",
+    "replace": "!1&&(0,$At.jsxs)(\"button\",{type:\"button\",onClick:()=>{const t=rt(\"lh89dvng\")",
     "why": "Theme editor: hide 'Upgrade' button when 0 remix slots"
   },
   {
     "group": "promos",
     "file": "content-scripts/all.js",
-    "find": "0===At?(0,JNe.jsxs)(\"button\",{type:\"button\",onClick:()=>{const t=at(\"1hcxx7so\")",
-    "replace": "!1?(0,JNe.jsxs)(\"button\",{type:\"button\",onClick:()=>{const t=at(\"1hcxx7so\")",
+    "find": "0===pt?(0,$At.jsxs)(\"button\",{type:\"button\",onClick:()=>{const t=rt(\"mzsfetwm\")",
+    "replace": "!1?(0,$At.jsxs)(\"button\",{type:\"button\",onClick:()=>{const t=rt(\"mzsfetwm\")",
     "why": "Theme editor: hide 'Upgrade for more' when 0 creation slots (falls through to normal branch)"
   },
   {
     "group": "promos",
     "file": "content-scripts/all.js",
-    "find": "0===jt&&(0,vze.jsxs)(\"button\",{className:\"flex items-center gap-1 cursor-pointer\",onClick:()=>{const t=at(\"wwo2jnis\")",
-    "replace": "!1&&(0,vze.jsxs)(\"button\",{className:\"flex items-center gap-1 cursor-pointer\",onClick:()=>{const t=at(\"wwo2jnis\")",
+    "find": "0===wt&&(0,hZt.jsxs)(\"button\",{className:\"flex items-center gap-1 cursor-pointer\",onClick:()=>{const t=rt(\"wwo2jnis\")",
+    "replace": "!1&&(0,hZt.jsxs)(\"button\",{className:\"flex items-center gap-1 cursor-pointer\",onClick:()=>{const t=rt(\"wwo2jnis\")",
     "why": "Theme menu: hide 'Upgrade' link when 0 free swaps left"
   },
   {
     "group": "promos",
     "file": "content-scripts/all.js",
-    "find": "children:(0,yDe.jsx)(gDe,{...t})",
+    "find": "children:(0,uJt.jsx)(fJt,{...t})",
     "replace": "children:null",
     "why": "Campaign popup card ('Make Canvas yours.'): render nothing. Campaigns never start (the background engine is skipped), and with the card unreferenced the minifier drops it and its 842 KB inline image."
   },
   {
     "group": "page",
     "file": "content-scripts/all.js",
-    "find": "courseResolver:{matches:v2t,feature:new aie},fileAnnotationPopup:{matches:v2t,feature:new Dde},dashboardNotes:",
-    "replace": "courseResolver:{matches:v2t,feature:new aie},dashboardNotes:",
+    "find": "courseResolver:{matches:_oe,feature:new Sme},fileAnnotationPopup:{matches:_oe,feature:new zpe},dashboardNotes:",
+    "replace": "courseResolver:{matches:_oe,feature:new Sme},dashboardNotes:",
     "why": "Canvas registry: drop 'File Annotations Enabled' nag toast (fileAnnotationPopup/Dde)."
   },
   {
     "group": "page",
     "file": "content-scripts/all.js",
-    "find": "subpageCta:{matches:k2t,feature:new Hoe},assignmentDetailsButton:",
+    "find": "subpageCta:{matches:tse,feature:new _fe},assignmentDetailsButton:",
     "replace": "assignmentDetailsButton:",
     "why": "Canvas registry: drop subpageCta (AI 'Save/View Syllabus' breadcrumb CTA + 'Edit course details' -> app:course cloud page)."
   },
   {
     "group": "page",
     "file": "content-scripts/all.js",
-    "find": "calendarSyncButton:{matches:/courses\\/\\d+\\/assignments$/,feature:new Kse},customAssignmentsSection:",
+    "find": "calendarSyncButton:{matches:/courses\\/\\d+\\/assignments$/,feature:new Ame},customAssignmentsSection:",
     "replace": "customAssignmentsSection:",
     "why": "Canvas registry: drop Pro calendar 'Sync' button (crown) on /courses/:id/assignments."
   },
   {
     "group": "page",
     "file": "content-scripts/all.js",
-    "find": "u=d&&await b_t();let h=",
+    "find": "u=d&&await DPt();let h=",
     "replace": "u=!1;let h=",
     "why": "cardCustomizations: never add the '+' Create button on dashboard cards (opens app:create cloud page); passing false also removes any existing button."
   },
   {
     "group": "page",
     "file": "content-scripts/all.js",
-    "find": "try{const r=x$t(t,n);return r.length>0?r:k$t(e,n)}",
+    "find": "try{const r=WVt(t,n);return r.length>0?r:VVt(e,n)}",
     "replace": "try{return[]}",
     "why": "Dashboard widgets: j$t returns no variant widgets, so no ext.bettercampus.com /widgets iframes (planner/notes/lecture/study/theme/grades_trend) render; native GPA/notes/doge widgets unaffected."
   },
   {
     "group": "page",
     "file": "content-scripts/all.js",
-    "find": "return null!=o&&\"canvas\"!==o?a.filter(t=>{const e=at(\"nwb7rooa\");try{return!t.id.startsWith(\"bc-\")}catch(n){throw ot(e),n}finally{st(e)}}):a}",
-    "replace": "return a.filter(t=>{const e=at(\"nwb7rooa\");try{return!t.id.startsWith(\"bc-\")}catch(n){throw ot(e),n}finally{st(e)}})}",
+    "find": "return null!=o&&\"canvas\"!==o?a.filter(t=>{const e=rt(\"nwb7rooa\");try{return!t.id.startsWith(\"bc-\")}catch(n){throw at(e),n}finally{ot(e)}}):a}",
+    "replace": "return a.filter(t=>{const e=rt(\"nwb7rooa\");try{return!t.id.startsWith(\"bc-\")}catch(n){throw at(e),n}finally{ot(e)}})}",
     "why": "Sidebar page list nce(): always strip bc-assignments/bc-notes/bc-grades/bc-study (cloud Planner/Notes/Grades/Study) on Canvas too, as already done for other LMSes. Covers nav rendering and the popup:sidebar settings list."
   },
   {
     "group": "page",
     "file": "content-scripts/all.js",
-    "find": ",{kind:\"bettercampus\",icon:Eu[\"bc-assignments\"],label:\"Planner\",page:\"planner\"},{kind:\"bettercampus\",icon:Eu[\"bc-grades\"],label:\"Grades\",page:\"grades\"},{kind:\"bettercampus\",icon:Eu[\"bc-notes\"],label:\"Notes\",page:\"notes\"},{kind:\"bettercampus\",icon:Eu[\"bc-study\"],label:\"Study\",page:\"study\"}",
+    "find": ",{kind:\"bettercampus\",icon:Bu[\"bc-assignments\"],label:\"Planner\",page:\"planner\"},{kind:\"bettercampus\",icon:Bu[\"bc-grades\"],label:\"Grades\",page:\"grades\"},{kind:\"bettercampus\",icon:Bu[\"bc-notes\"],label:\"Notes\",page:\"notes\"},{kind:\"bettercampus\",icon:Bu[\"bc-study\"],label:\"Study\",page:\"study\"}",
     "replace": "",
     "why": "Dashboard search bar quick actions (g3t): remove Planner/Grades/Notes/Study cloud shortcuts; keeps 'Open BetterCampus' and 'Customize theme'."
   },
   {
     "group": "page",
     "file": "content-scripts/all.js",
-    "find": "Promise.all([_we(e),$we(e),ove(e),sve(e)])",
-    "replace": "Promise.all([_we(e),[],[],[]])",
-    "why": "In-page reminders: keep local todo due reminders (_we); drop class 'take AI notes' (app:notes), 'make flashcards' (app:study) and 'planner focus' (app:planner) prompt stacks."
+    "find": "Promise.all([rle(e),ale(e),fle(e),mle(e),ele()])",
+    "replace": "Promise.all([rle(e),[],[],[],ele().then(t=>t.filter(t=>![\"class_start_prompt\",\"study_set_prompt\",\"planner_prompt\"].includes(t.source)))])",
+    "why": "In-page reminders: keep local todo due reminders (_we); drop class 'take AI notes' (app:notes), 'make flashcards' (app:study) and 'planner focus' (app:planner) prompt stacks. The floating notification center's unread count (ele) leaves out those three sources too, so it never counts prompts it doesn't show."
   },
   {
     "group": "page",
@@ -254,15 +247,15 @@
   {
     "group": "page",
     "file": "content-scripts/all.js",
-    "find": "t.stopPropagation(),Vgt(\"app:locker\")",
-    "replace": "t.stopPropagation(),Vgt(\"popup:courses\")",
+    "find": "const t=rt(\"nfyb4fuf\");try{return git(\"app:locker\"),void 0}",
+    "replace": "const t=rt(\"nfyb4fuf\");try{return git(\"popup:courses\"),void 0}",
     "why": "BetterCampus sidebar 'Courses' section gear: open local Courses settings tab instead of cloud Locker."
   },
   {
     "group": "page",
     "file": "content-scripts/all.js",
-    "find": "QJt=()=>{const t=at(\"61dn7lrl\");try{",
-    "replace": "QJt=()=>{const t=at(\"61dn7lrl\");try{return null;",
+    "find": "hae=()=>{const t=rt(\"61dn7lrl\");try{",
+    "replace": "hae=()=>{const t=rt(\"61dn7lrl\");try{return null;",
     "why": "Todo list: hide the calendar 'Sync' button (login + Pro calendarSync)."
   },
   {
@@ -275,71 +268,71 @@
   {
     "group": "page",
     "file": "content-scripts/all.js",
-    "find": "onOpenGrades:G1t,",
+    "find": "onOpenGrades:Boe,",
     "replace": "onOpenGrades:void 0,",
     "why": "GPA Overview widget: title becomes plain text instead of a button opening cloud app:grades."
   },
   {
     "group": "page",
     "file": "content-scripts/all.js",
-    "find": "(0,P1t.jsx)(\"div\",{className:\"text-center\",children:(0,P1t.jsx)(\"button\",{onClick:o,className:\"text-xs text-theme-link hover:text-theme-0 hover:underline transition-colors duration-200 cursor-pointer bg-transparent border-none p-0\",children:\"What if (GPA calc)\"})})",
+    "find": "(0,uJt.jsx)(\"div\",{className:\"text-center\",children:(0,uJt.jsx)(\"button\",{onClick:o,className:\"text-xs text-theme-link hover:text-theme-0 hover:underline transition-colors duration-200 cursor-pointer bg-transparent border-none p-0\",children:\"What if (GPA calc)\"})})",
     "replace": "null",
     "why": "Legacy GPA popup: remove 'What if (GPA calc)' link to cloud app:grades?view=what-if."
   },
   {
     "group": "cleanup",
     "file": "content-scripts/all.js",
-    "find": "rendererKey:\"grades_trend\",featureFlag:\"grades\"}],L_t={",
-    "replace": "rendererKey:\"grades_trend\",featureFlag:\"grades\"}].filter(()=>!1),L_t={",
+    "find": "rendererKey:\"grades_trend\",featureFlag:\"grades\"}],lVt={",
+    "replace": "rendererKey:\"grades_trend\",featureFlag:\"grades\"}].filter(()=>!1),lVt={",
     "why": "Empty the remote widget registry (q_t): planner/notes/lecture/study/theme/grades_trend iframes drop out of the Widgets catalog and the dashboard; native widgets stay."
   },
   {
     "group": "cleanup",
     "file": "content-scripts/all.js",
-    "find": "(0,ySe.jsx)(sce,{id:\"todo-google-calendar-sync\",",
-    "replace": "!1&&(0,ySe.jsx)(sce,{id:\"todo-google-calendar-sync\",",
+    "find": "(0,JPt.jsx)(MNt,{id:\"todo-google-calendar-sync\",",
+    "replace": "!1&&(0,JPt.jsx)(MNt,{id:\"todo-google-calendar-sync\",",
     "why": "To-Do settings: hide the Pro Calendar Sync row (login + calendarSync gate)."
   },
   {
     "group": "cleanup",
     "file": "content-scripts/all.js",
-    "find": "(0,ySe.jsx)(sce,{id:\"todo-streaks\",",
-    "replace": "!1&&(0,ySe.jsx)(sce,{id:\"todo-streaks\",",
+    "find": "(0,JPt.jsx)(MNt,{id:\"todo-streaks\",",
+    "replace": "!1&&(0,JPt.jsx)(MNt,{id:\"todo-streaks\",",
     "why": "To-Do settings: hide the Streaks toggle (cloud streak sync)."
   },
   {
     "group": "cleanup",
     "file": "content-scripts/all.js",
-    "find": "(0,jMe.jsx)(sce,{id:\"other-ai-transparency\",",
-    "replace": "!1&&(0,jMe.jsx)(sce,{id:\"other-ai-transparency\",",
+    "find": "(0,TUt.jsx)(MNt,{id:\"other-ai-transparency\",",
+    "replace": "!1&&(0,TUt.jsx)(MNt,{id:\"other-ai-transparency\",",
     "why": "Other tab: hide the AI Transparency row."
   },
   {
     "group": "cleanup",
     "file": "content-scripts/all.js",
-    "find": "(0,LCe.jsxs)(\"div\",{className:\"relative overflow-hidden rounded-lg mt-4\",children:[(0,LCe.jsx)(\"div\",{className:\"grid grid-cols-[repeat(3,minmax(0,1fr))] gap-0.5 auto-rows-[120px] pointer-events-none select-none blur-[2px] opacity-80\"",
-    "replace": "!1&&(0,LCe.jsxs)(\"div\",{className:\"relative overflow-hidden rounded-lg mt-4\",children:[(0,LCe.jsx)(\"div\",{className:\"grid grid-cols-[repeat(3,minmax(0,1fr))] gap-0.5 auto-rows-[120px] pointer-events-none select-none blur-[2px] opacity-80\"",
+    "find": "(0,out.jsxs)(\"div\",{className:\"relative overflow-hidden rounded-lg mt-4\",children:[(0,out.jsx)(\"div\",{className:\"grid grid-cols-[repeat(3,minmax(0,1fr))] gap-0.5 auto-rows-[120px] pointer-events-none select-none blur-[2px] opacity-80\"",
+    "replace": "!1&&(0,out.jsxs)(\"div\",{className:\"relative overflow-hidden rounded-lg mt-4\",children:[(0,out.jsx)(\"div\",{className:\"grid grid-cols-[repeat(3,minmax(0,1fr))] gap-0.5 auto-rows-[120px] pointer-events-none select-none blur-[2px] opacity-80\"",
     "why": "Themes browser: drop the blurred \"Create free account to view more\" block entirely (the gated themes stay hidden, not unblurred)."
   },
   {
     "group": "cleanup",
     "file": "content-scripts/all.js",
-    "find": "function OJ(t){const e=at(\"suu83zwd\");try{",
-    "replace": "function OJ(t){const e=at(\"suu83zwd\");try{return Promise.resolve(!1);",
+    "find": "function p3(t){const e=rt(\"suu83zwd\");try{",
+    "replace": "function p3(t){const e=rt(\"suu83zwd\");try{return Promise.resolve(!1);",
     "why": "Cloud settings sync engine (users/sync/pull and push): never runs; callers treat false as \"not synced\"."
   },
   {
     "group": "cleanup",
     "file": "content-scripts/all.js",
-    "find": "async function(t){const e=at(\"8458wyrd\");try{",
-    "replace": "async function(t){const e=at(\"8458wyrd\");try{return;",
+    "find": "async function(t){const e=rt(\"8458wyrd\");try{",
+    "replace": "async function(t){const e=rt(\"8458wyrd\");try{return;",
     "why": "Streak push to api.bettercampus.com/streak: skip (401 spam without an account)."
   },
   {
     "group": "cleanup",
     "file": "content-scripts/all.js",
-    "find": "(0,jIe.jsxs)(\"div\",{className:\"mt-2 grid grid-cols-2 gap-1 rounded-2xl border p-1\",",
-    "replace": "!1&&(0,jIe.jsxs)(\"div\",{className:\"mt-2 grid grid-cols-2 gap-1 rounded-2xl border p-1\",",
+    "find": "(0,GWt.jsxs)(\"div\",{className:\"mt-2 grid grid-cols-2 gap-1 rounded-2xl border p-1\",",
+    "replace": "!1&&(0,GWt.jsxs)(\"div\",{className:\"mt-2 grid grid-cols-2 gap-1 rounded-2xl border p-1\",",
     "why": "GPA history dialog: hide the Enter Manually / Upload Transcript switcher. Transcript import is a cloud AI upload that needs an account; the dialog opens on manual entry."
   },
   {
@@ -366,106 +359,113 @@
   {
     "group": "removals",
     "file": "content-scripts/all.js",
-    "find": "const e=SBe[t.type];",
-    "replace": "const e=[\"music\",\"timer\",\"dino\",\"quote\",\"breathe\"].includes(t.type)?null:SBe[t.type];",
+    "find": "const e=_ve[t.type];",
+    "replace": "const e=[\"music\",\"timer\",\"dino\",\"quote\",\"breathe\"].includes(t.type)?null:_ve[t.type];",
     "why": "Fun widgets: the floating music/timer/dino/quote/breathe widgets never render (including ones saved in bettercanvas_active_widgets). Agenda stays."
   },
   {
     "group": "removals",
     "file": "content-scripts/all.js",
-    "find": ",{id:\"fun\",label:\"Fun\",icon:xd}]",
+    "find": ",{id:\"fun\",label:\"Fun\",icon:Cd}]",
     "replace": "]",
     "why": "Fun widgets: drop the Fun category (Doge) from the dashboard Widgets catalog."
   },
   {
     "group": "removals",
     "file": "content-scripts/all.js",
-    "find": "(0,jMe.jsx)(sce,{id:\"other-files\",",
-    "replace": "!1&&(0,jMe.jsx)(sce,{id:\"other-files\",",
+    "find": "(0,TUt.jsx)(MNt,{id:\"other-files\",",
+    "replace": "!1&&(0,TUt.jsx)(MNt,{id:\"other-files\",",
     "why": "File annotations: hide the Other > Files settings section (Annotations toggle)."
   },
   {
     "group": "removals",
     "file": "content-scripts/viewer.js",
-    "find": "Ip().annotations&&mm();let t=0;const n=10;",
+    "find": "a2().annotations&&V7();let t=0;const n=10;",
     "replace": "let t=10;const n=10;",
     "why": "File annotations: never start the PDF annotation layer in the Canvas file viewer (and skip its 2s canvas wait); the drawing setup below is already guarded on the canvas existing."
   },
   {
+    "group": "removals",
+    "file": "content-scripts/viewer.js",
+    "find": "n.annotations&&(!function(){const e=te(\"1xatgiol\");try{",
+    "replace": "!1&&(!function(){const e=te(\"1xatgiol\");try{",
+    "why": "File annotations: don't mount the annotation tooltip overlay (bettercampus-annotation-tooltips, new in 9.9.1) or load the Figtree font it's set in; the annotation layer it serves never starts."
+  },
+  {
     "group": "bcx",
     "file": "content-scripts/all.js",
-    "find": "(0,Ebt.jsx)(obt,{isOpen:\"cropping\"===f,onClose:()=>{const t=at(\"je604jfd\");try{ct(),h||i?.()}catch(e){throw ot(t),e}finally{st(t)}},imageSrc:p,onCropComplete:et,onCropAnimated:lt,mode:R,onError:()=>{const t=at(\"8cghr87v\");try{g_(\"Failed to load image.\",\"error\"),ct(),h||i?.()}catch(e){throw ot(t),e}finally{st(t)}},container:u,imageType:o,hideFilters:!1,initialFilter:x??c,initialFilterIntensity:j??l})",
+    "find": "(0,Rvt.jsx)(xvt,{isOpen:\"cropping\"===f,onClose:()=>{const t=rt(\"je604jfd\");try{ct(),h||i?.()}catch(e){throw at(t),e}finally{ot(t)}},imageSrc:p,onCropComplete:et,onCropAnimated:lt,mode:R,onError:()=>{const t=rt(\"8cghr87v\");try{r4(\"Failed to load image.\",\"error\"),ct(),h||i?.()}catch(e){throw at(t),e}finally{ot(t)}},container:u,imageType:o,hideFilters:!1,initialFilter:x??c,initialFilterIntensity:j??l})",
     "replace": "(\"cropping\"===f&&p&&globalThis.__bcx?.({feature:\"cardImageEditing\",imageSrc:p,imageType:o,animated:\"cropAnimated\"===R,container:u,save:e=>{r({img:e,visual_type:n&&\"default\"!==n?n:\"sync\",overlay_opacity:65,image_filter:void 0,image_filter_intensity:100}),ct(),i?.()},cancel:()=>{ct(),h||i?.()}}),null)",
     "why": "Course-card image picker: hand cropping to our editor (src/bcx/cardImage.ts) instead of their Pro-gated cropper; save goes through the same setter as their free URL path."
   },
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
-    "find": "(0,pNe.jsx)(obt,{isOpen:u,onClose:W,imageSrc:f,onCropComplete:U,onCropAnimated:V,mode:E,container:o,initialFilter:t.image_filter,initialFilterIntensity:t.image_filter_intensity,imageType:\"card\"===a?\"card\":\"sidebar\"===a?\"sidebar\":\"background\"})",
-    "replace": "(u&&f&&globalThis.__bcx?.({feature:\"cardImageEditing\",imageSrc:f,imageType:\"card\"===a?\"card\":\"sidebar\"===a?\"sidebar\":\"background\",animated:\"cropAnimated\"===E,container:o,save:e=>{n({img:e,visual_type:\"image\",is_animated:!1,image_filter:void 0,image_filter_intensity:100}),d(\"image\"),y(!0),W()},cancel:W}),null)",
+    "find": "(0,ljt.jsx)(xvt,{isOpen:u,onClose:Q,imageSrc:f,onCropComplete:U,onCropAnimated:V,mode:N,container:o,initialFilter:t.image_filter,initialFilterIntensity:t.image_filter_intensity,imageType:\"card\"===a?\"card\":\"sidebar\"===a?\"sidebar\":\"background\"})",
+    "replace": "(u&&f&&globalThis.__bcx?.({feature:\"cardImageEditing\",imageSrc:f,imageType:\"card\"===a?\"card\":\"sidebar\"===a?\"sidebar\":\"background\",animated:\"cropAnimated\"===N,container:o,save:e=>{n({img:e,visual_type:\"image\",is_animated:!1,image_filter:void 0,image_filter_intensity:100}),d(\"image\"),y(!0),Q()},cancel:Q}),null)",
     "why": "Theme-editor image field (card/sidebar/background): same handoff to our editor; save mirrors their free URL path (n + d(\"image\") + y(!0))."
   },
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
-    "find": "{closeWidget:A}=SNt();return(0,yDe.jsxs)(\"div\",{className:\"p-4 pt-5 bg-theme-0 text-theme-0 flex flex-col gap-3 h-full overflow-auto\",",
-    "replace": "{closeWidget:A}=SNt();return globalThis.__bcx?.({feature:\"agenda_context\",ctx:{courseData:t,schedule:e,visibleCourseIds:n,overrides:g,planned:b,events:w.map(ODe),timeFormat:f,loadRange:M_,todoCache:()=>XK(\"todo_cache\"),defaults:WDe,renderList:(el,items)=>{const root=pDe.createRoot(el);return root.render((0,yDe.jsx)(VDe,{items})),root}}}),(0,yDe.jsxs)(\"div\",{ref:el=>{el&&globalThis.__bcx?.({feature:\"agenda_root\",el})},className:\"p-4 pt-5 bg-theme-0 text-theme-0 flex flex-col gap-3 h-full overflow-auto\",",
+    "find": "return(0,uJt.jsxs)(\"div\",{className:\"p-4 pt-3 bg-theme-0 text-theme-0 flex flex-col gap-3 h-full overflow-auto\",",
+    "replace": "return globalThis.__bcx?.({feature:\"agenda_context\",ctx:{courseData:t,schedule:e,visibleCourseIds:n,overrides:g,planned:b,events:w.map(h_t),timeFormat:f,loadRange:y4,todoCache:()=>P5(\"todo_cache\"),defaults:__t,renderList:(el,items)=>{const root=dJt.createRoot(el);return root.render((0,uJt.jsx)(t$t,{items})),root}}}),(0,uJt.jsxs)(\"div\",{ref:el=>{el&&globalThis.__bcx?.({feature:\"agenda_root\",el})},className:\"p-4 pt-3 bg-theme-0 text-theme-0 flex flex-col gap-3 h-full overflow-auto\",",
     "why": "Agenda widget: share its free data (course schedule, cached to-dos, overrides, planned sessions, events, the free range loader and their list component) and its root element with our day view (src/bcx/agenda.ts)."
   },
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
-    "find": "if(!p)return I2(\"widgets_agenda_date_change_blocked\",{direction:t>r?\"forward\":\"backward\",plan_type:m},{sampleRate:.05}),Kgt(\"agenda_date_change\"),void 0;",
+    "find": "if(!p)return W8(\"widgets_agenda_date_change_blocked\",{direction:t>r?\"forward\":\"backward\",plan_type:m},{sampleRate:.05}),uvt(\"agenda_date_change\"),void 0;",
     "replace": "if(!p)return globalThis.__bcx?.({feature:\"agenda_date_change\",target:t}),void 0;",
     "why": "Agenda arrows: hand the requested day to our day view instead of the Pro upsell; their widget itself stays on today."
   },
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
-    "find": "return j(NN(r,1))}catch(e){throw ot(t),e}finally{st(t)}},className:\"p-1 hover:bg-theme-1 rounded transition-colors cursor-pointer relative\",children:[(0,yDe.jsx)(LNt,{highlight:\"agenda_date_change\",className:\"absolute -top-0.5 -right-0.5 size-2.5\"})",
-    "replace": "return j(NN(r,1))}catch(e){throw ot(t),e}finally{st(t)}},className:\"p-1 hover:bg-theme-1 rounded transition-colors cursor-pointer relative\",children:[null",
+    "find": "return j(KE(r,1))}catch(e){throw at(t),e}finally{ot(t)}},className:\"p-1 hover:bg-theme-1 rounded transition-colors cursor-pointer relative\",children:[(0,uJt.jsx)(ZPt,{highlight:\"agenda_date_change\",className:\"absolute -top-0.5 -right-0.5 size-2.5\"})",
+    "replace": "return j(KE(r,1))}catch(e){throw at(t),e}finally{ot(t)}},className:\"p-1 hover:bg-theme-1 rounded transition-colors cursor-pointer relative\",children:[null",
     "why": "Agenda: drop the Pro crown on the previous-day arrow."
   },
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
-    "find": "return j(wx(r,1))}catch(e){throw ot(t),e}finally{st(t)}},className:\"p-1 hover:bg-theme-1 rounded transition-colors cursor-pointer relative\",children:[(0,yDe.jsx)(LNt,{highlight:\"agenda_date_change\",className:\"absolute -top-0.5 -right-0.5 size-2.5\"})",
-    "replace": "return j(wx(r,1))}catch(e){throw ot(t),e}finally{st(t)}},className:\"p-1 hover:bg-theme-1 rounded transition-colors cursor-pointer relative\",children:[null",
+    "find": "return j(Qx(r,1))}catch(e){throw at(t),e}finally{ot(t)}},className:\"p-1 hover:bg-theme-1 rounded transition-colors cursor-pointer relative\",children:[(0,uJt.jsx)(ZPt,{highlight:\"agenda_date_change\",className:\"absolute -top-0.5 -right-0.5 size-2.5\"})",
+    "replace": "return j(Qx(r,1))}catch(e){throw at(t),e}finally{ot(t)}},className:\"p-1 hover:bg-theme-1 rounded transition-colors cursor-pointer relative\",children:[null",
     "why": "Agenda: drop the Pro crown on the next-day arrow."
   },
   {
     "group": "removals",
     "file": "content-scripts/all.js",
-    "find": "(0,Hat.jsx)(Wat,{label:\"Auto-rotate theme\",",
-    "replace": "!1&&(0,Hat.jsx)(Wat,{label:\"Auto-rotate theme\",",
+    "find": "r(\"autoRotate\")&&(0,Jst.jsx)(Kst,{label:\"Auto-rotate theme\",",
+    "replace": "!1&&(0,Jst.jsx)(Kst,{label:\"Auto-rotate theme\",",
     "why": "Auto-rotating themes: drop the rotate button from the Edit Canvas header (it opened the auto-rotate modal)."
   },
   {
     "group": "removals",
     "file": "content-scripts/all.js",
-    "find": "(0,AEe.jsxs)(dce,{title:\"Auto-Rotate Theme\",",
-    "replace": "!1&&(0,AEe.jsxs)(dce,{title:\"Auto-Rotate Theme\",",
+    "find": "(0,FNt.jsxs)(PNt,{title:\"Auto-Rotate Theme\",",
+    "replace": "!1&&(0,FNt.jsxs)(PNt,{title:\"Auto-Rotate Theme\",",
     "why": "Auto-rotating themes: drop the Auto-Rotate Theme section from the Appearance settings."
   },
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
-    "find": "const D={items:p,startDate:u,setStartDate:h,",
-    "replace": "globalThis.__bcx?.({feature:\"todo_context\",setStartDate:h});const D={items:p,startDate:u,setStartDate:h,",
+    "find": "const z={items:m,startDate:d,setStartDate:u,",
+    "replace": "globalThis.__bcx?.({feature:\"todo_context\",setStartDate:u});const z={items:m,startDate:d,setStartDate:u,",
     "why": "To-Do provider: give our custom range (src/bcx/todoRange.ts) its free startDate setter, used to re-render/reload when our range changes."
   },
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
-    "find": "M=()=>{const t=at(\"wnvztgu3\");try{",
-    "replace": "M=()=>{const t=at(\"wnvztgu3\");try{const $bcx=globalThis.__bcxTodoRange;if($bcx?.active)return $bcx.range(u);",
+    "find": "I=()=>{const t=rt(\"wnvztgu3\");try{",
+    "replace": "I=()=>{const t=rt(\"wnvztgu3\");try{const $bcx=globalThis.__bcxTodoRange;if($bcx?.active)return $bcx.range(d);",
     "why": "To-Do date range: while our custom range is active, our range math supplies the window the free list pipeline loads and buckets."
   },
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
-    "find": "I=t=>{const e=at(\"2yhasz02\");try{",
-    "replace": "I=t=>{const e=at(\"2yhasz02\");try{const $bcx=globalThis.__bcxTodoRange;if($bcx?.active)return h($bcx.step(u,t)),void 0;",
+    "find": "S=t=>{const e=rt(\"2yhasz02\");try{",
+    "replace": "S=t=>{const e=rt(\"2yhasz02\");try{const $bcx=globalThis.__bcxTodoRange;if($bcx?.active)return u($bcx.step(d,t)),void 0;",
     "why": "To-Do arrows: step by our custom range length while it is active."
   },
   {
@@ -478,70 +478,70 @@
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
-    "find": "onSelect:t=>{const e=at(\"dcruznqg\");try{t.preventDefault(),tbt(\"todoCustomTimeframe\")}",
-    "replace": "onSelect:t=>{const e=at(\"dcruznqg\");try{globalThis.__bcx?.({feature:\"todo_custom_range\",action:\"pick\",container:a})}",
+    "find": "onSelect:t=>{const e=rt(\"dcruznqg\");try{t.preventDefault(),mvt(\"todoCustomTimeframe\")}",
+    "replace": "onSelect:t=>{const e=rt(\"dcruznqg\");try{globalThis.__bcx?.({feature:\"todo_custom_range\",action:\"pick\",container:a})}",
     "why": "Dashboard To-Do header: \"Custom\" opens our range picker instead of the Pro upsell."
   },
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
-    "find": "f=async e=>{const n=at(\"l7ao0sv8\");try{",
-    "replace": "f=async e=>{const n=at(\"l7ao0sv8\");try{\"custom\"!==e&&globalThis.__bcx?.({feature:\"todo_custom_range\",action:\"clear\"});",
+    "find": "f=async e=>{const n=rt(\"l7ao0sv8\");try{",
+    "replace": "f=async e=>{const n=rt(\"l7ao0sv8\");try{\"custom\"!==e&&globalThis.__bcx?.({feature:\"todo_custom_range\",action:\"clear\"});",
     "why": "Dashboard To-Do header: picking Day/Week/Month turns our custom range off (even when the preset is unchanged)."
   },
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
-    "find": "onSelect:t=>{const e=at(\"5yl93yhb\");try{t.preventDefault(),tbt(\"todoCustomTimeframe\")}",
-    "replace": "onSelect:t=>{const e=at(\"5yl93yhb\");try{globalThis.__bcx?.({feature:\"todo_custom_range\",action:\"pick\",container:o})}",
+    "find": "onSelect:t=>{const e=rt(\"5yl93yhb\");try{t.preventDefault(),mvt(\"todoCustomTimeframe\")}",
+    "replace": "onSelect:t=>{const e=rt(\"5yl93yhb\");try{globalThis.__bcx?.({feature:\"todo_custom_range\",action:\"pick\",container:o})}",
     "why": "Settings > Dashboard timeframe: \"Custom\" opens our range picker, in the dropdown's own portal (the page portal is scaled into the preview while the menu is open)."
   },
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
-    "find": "onSelect:t=>{const e=at(\"h7m0wzbp\");try{t.preventDefault(),tbt(\"todoCustomTimeframe\")}",
-    "replace": "onSelect:t=>{const e=at(\"h7m0wzbp\");try{globalThis.__bcx?.({feature:\"todo_custom_range\",action:\"pick\",container:y})}",
+    "find": "onSelect:t=>{const e=rt(\"h7m0wzbp\");try{t.preventDefault(),mvt(\"todoCustomTimeframe\")}",
+    "replace": "onSelect:t=>{const e=rt(\"h7m0wzbp\");try{globalThis.__bcx?.({feature:\"todo_custom_range\",action:\"pick\",container:y})}",
     "why": "Settings > To-Do timeframe: \"Custom\" opens our range picker, in the dropdown's own portal (the page portal is scaled into the preview while the menu is open)."
   },
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
-    "find": "(0,RZt.jsx)(\"span\",{children:\"Custom\"}),(0,RZt.jsx)(Ad,{className:\"size-3\"}),(0,RZt.jsx)(vl,{className:\"size-3 fill-premium text-premium\"})",
-    "replace": "(0,RZt.jsx)(\"span\",{children:\"Custom\"}),(0,RZt.jsx)(Ad,{className:\"size-3\"})",
+    "find": "(0,uJt.jsx)(\"span\",{children:\"Custom\"}),(0,uJt.jsx)(Sd,{className:\"size-3\"}),(0,uJt.jsx)(yvt,{className:\"size-3\"})",
+    "replace": "(0,uJt.jsx)(\"span\",{children:\"Custom\"}),(0,uJt.jsx)(Sd,{className:\"size-3\"})",
     "why": "Timeframe dropdown: drop the Pro crown on \"Custom\" (it opens our picker now)."
   },
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
-    "find": "(0,lSe.jsx)(\"span\",{children:\"Custom\"}),(0,lSe.jsx)(Ad,{className:\"size-3\"}),(0,lSe.jsx)(vl,{className:\"size-3 fill-premium text-premium\"})",
-    "replace": "(0,lSe.jsx)(\"span\",{children:\"Custom\"}),(0,lSe.jsx)(Ad,{className:\"size-3\"})",
+    "find": "(0,PPt.jsx)(\"span\",{children:\"Custom\"}),(0,PPt.jsx)(Sd,{className:\"size-3\"}),(0,PPt.jsx)(yvt,{className:\"size-3\"})",
+    "replace": "(0,PPt.jsx)(\"span\",{children:\"Custom\"}),(0,PPt.jsx)(Sd,{className:\"size-3\"})",
     "why": "Timeframe dropdown: drop the Pro crown on \"Custom\" (it opens our picker now)."
   },
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
-    "find": "(0,ySe.jsx)(\"span\",{children:\"Custom\"}),(0,ySe.jsx)(Ad,{className:\"size-3\"}),(0,ySe.jsx)(vl,{className:\"size-3 fill-premium text-premium\"})",
-    "replace": "(0,ySe.jsx)(\"span\",{children:\"Custom\"}),(0,ySe.jsx)(Ad,{className:\"size-3\"})",
+    "find": "(0,JPt.jsx)(\"span\",{children:\"Custom\"}),(0,JPt.jsx)(Sd,{className:\"size-3\"}),(0,JPt.jsx)(yvt,{className:\"size-3\"})",
+    "replace": "(0,JPt.jsx)(\"span\",{children:\"Custom\"}),(0,JPt.jsx)(Sd,{className:\"size-3\"})",
     "why": "Timeframe dropdown: drop the Pro crown on \"Custom\" (it opens our picker now)."
   },
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
-    "find": "const p=at(\"snnav1io\");try{const r=(t,e)=>{const n=at(\"9d5564ft\");try{return lU(t,e)??\"\"}catch(r){throw ot(n),r}finally{st(n)}},p=mLt(o),y=fLt(o),",
-    "replace": "const p=at(\"snnav1io\"),$bcxS=globalThis.__bcxSessionTime,$bcxId=r,$bcxM=(0,cLt.useSyncExternalStore)($bcxS?.subscribe??(()=>()=>{}),()=>$bcxS?.get(r)??null),$bcxAt=$bcxS?.at(o,$bcxM)??null;try{const r=(t,e)=>{const n=at(\"9d5564ft\");try{return lU(t,e)??\"\"}catch(r){throw ot(n),r}finally{st(n)}},p=$bcxAt??mLt(o),y=!$bcxAt&&fLt(o),",
-    "why": "Focus-session row: show our time of day (src/bcx/sessionTime.ts) on top of its free all-day date, re-rendering when our stored times change."
+    "find": "Yee=({title:t,titlePlaceholder:e,onChangeTitle:n,status:r,plannedAt:a,duration:o,onChangeStatus:s,onPickPlannedAt:i,onChangeDuration:c,onRemove:l,portal:d,todo_24hr:u,autoFocusTitle:h,isRestricted:f})=>{const m=rt(\"snnav1io\");try{const m=(t,e)=>{const n=rt(\"9d5564ft\");try{return D$(t,e)??\"\"}catch(r){throw at(n),r}finally{ot(n)}},p=Oee(a),y=Pee(a),",
+    "replace": "Yee=({assignmentId:$bcxId,title:t,titlePlaceholder:e,onChangeTitle:n,status:r,plannedAt:a,duration:o,onChangeStatus:s,onPickPlannedAt:i,onChangeDuration:c,onRemove:l,portal:d,todo_24hr:u,autoFocusTitle:h,isRestricted:f})=>{const m=rt(\"snnav1io\"),$bcxS=globalThis.__bcxSessionTime,$bcxM=(0,Iee.useSyncExternalStore)($bcxS?.subscribe??(()=>()=>{}),()=>$bcxS?.get($bcxId)??null),$bcxAt=$bcxS?.at(a,$bcxM)??null;try{const m=(t,e)=>{const n=rt(\"9d5564ft\");try{return D$(t,e)??\"\"}catch(r){throw at(n),r}finally{ot(n)}},p=$bcxAt??Oee(a),y=!$bcxAt&&Pee(a),",
+    "why": "Focus-session row: show our time of day (src/bcx/sessionTime.ts) on top of its free all-day date, re-rendering when our stored times change. The row no longer reads its assignmentId prop (the caller still passes the session id), so the patch adds it back to the destructured props."
   },
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
-    "find": "(0,lLt.jsx)(aLt,{value:g,isAllDay:y,gated:m,",
-    "replace": "m?(0,lLt.jsx)(\"div\",{className:\"flex flex-col w-48 max-h-[340px] overflow-hidden\",ref:$el=>{$el&&globalThis.__bcx?.({feature:\"session_time_picker\",el:$el,id:$bcxId,plannedAt:o,h24:!!h,pickAllDay:()=>c(null,1439)})}}):(0,lLt.jsx)(aLt,{value:g,isAllDay:y,gated:m,",
+    "find": "(0,Mee.jsx)(Aee,{value:g,isAllDay:y,gated:f,",
+    "replace": "f?(0,Mee.jsx)(\"div\",{className:\"flex flex-col w-48 max-h-[340px] overflow-hidden\",ref:$el=>{$el&&globalThis.__bcx?.({feature:\"session_time_picker\",el:$el,id:$bcxId,plannedAt:a,h24:!!u,pickAllDay:()=>i(null,1439)})}}):(0,Mee.jsx)(Aee,{value:g,isAllDay:y,gated:f,",
     "why": "Focus-session \"Planned at\" popover: our time-of-day column replaces their Pro-gated time picker; it plans the date through their free all-day path."
   },
   {
     "group": "bcx",
     "file": "content-scripts/all.js",
-    "find": "children:\"Planned at\"}),m&&(0,lLt.jsx)(vl,{className:\"size-3 text-yellow-400 fill-yellow-400\"})",
+    "find": "children:\"Planned at\"}),f&&(0,Mee.jsx)(yvt,{className:\"size-3\"})",
     "replace": "children:\"Planned at\"}),null",
     "why": "Focus-session row: drop the Pro crown on \"Planned at\" (its time comes from our picker now)."
   },
@@ -555,43 +555,43 @@
   {
     "group": "telemetry",
     "file": "content-scripts/all.js",
-    "find": "const t=at(\"9popk2gd\");try{",
-    "replace": "const t=at(\"9popk2gd\");try{return!1;",
+    "find": "const t=rt(\"9popk2gd\");try{",
+    "replace": "const t=rt(\"9popk2gd\");try{return!1;",
     "why": "Analytics consent check (S2): always off. PostHog capture (I2) then never POSTs to us.i.posthog.com, for every call site (script_loaded, app_used, feature_used, widget/theme/todo events, paywall and upgrade views) and the trackEvent adapter (JRe -> I2). The startup /users/merge-analytics call checks it too, so the anonymous analytics_id is never linked to an account."
   },
   {
     "group": "telemetry",
     "file": "content-scripts/viewer.js",
-    "find": "const e=g(\"9popk2gd\");try{",
-    "replace": "const e=g(\"9popk2gd\");try{return!1;",
+    "find": "const e=te(\"9popk2gd\");try{",
+    "replace": "const e=te(\"9popk2gd\");try{return!1;",
     "why": "Analytics consent check in the Canvas file viewer (kh): always off, so PostHog capture (xh) never POSTs to us.i.posthog.com. Its only callers are annotation events, which the file-annotations removal already stops; this keeps telemetry off if annotations come back."
   },
   {
     "group": "cloud",
     "file": "content-scripts/all.js",
-    "find": "async function _p(t){const e=at(\"83lrudd4\");try{",
-    "replace": "async function _p(t){const e=at(\"83lrudd4\");try{if(![\"/themes\",\"/themes/:code\",\"/themes/comments\",\"/themes/check-limits\",\"/sticker-palette\"].includes(t.path))return{data:null,error:{status:401,message:\"Not signed in\"},rewards:null};",
+    "find": "async function sy(t){const e=rt(\"83lrudd4\");try{",
+    "replace": "async function sy(t){const e=rt(\"83lrudd4\");try{if(![\"/themes\",\"/themes/:code\",\"/themes/comments\",\"/themes/check-limits\",\"/sticker-palette\"].includes(t.path))return{data:null,error:{status:401,message:\"Not signed in\"},rewards:null};",
     "why": "Backend API client (_p): sends with allowAnonymous, so without an account it still sends to api.bettercampus.com under a persistent X-Device-ID. That includes every to-do edit (/overrides/update, with plaintext assignment title, course code, due date and status), class schedule edits (/schedules/sync: course name, code, periods) and to-do lookups (/overrides). Answer every path locally with the 401 a signed-out request gets, except the public GETs the community theme browser reads."
   },
   {
     "group": "cloud",
     "file": "background.js",
-    "find": "async function Jo(e){const t=y(\"83lrudd4\");try{",
-    "replace": "async function Jo(e){const t=y(\"83lrudd4\");try{return{data:null,error:{status:401,message:\"Not signed in\"},rewards:null};",
+    "find": "async function Wo(e){const t=y(\"83lrudd4\");try{",
+    "replace": "async function Wo(e){const t=y(\"83lrudd4\");try{return{data:null,error:{status:401,message:\"Not signed in\"},rewards:null};",
     "why": "Background copy of the backend API client (Jo): its only paths are account sync (encryption key, settings push, grade history). Answer locally with the 401 a signed-out request gets."
   },
   {
     "group": "perf",
     "file": "content-scripts/all.js",
     "find": "const t=await async function(){const t=e.runtime.getURL(\"/content-scripts/all.css\");try{return await(await fetch(t)).text()}catch(r){return n.warn(`Failed to load styles @ ${t}. Did you forget to import the stylesheet in your entrypoint?`,r),\"\"}}();o.push(t.replaceAll(\":root\",\":host\"))",
-    "replace": "const t=await(Z.$css??=async function(){const t=e.runtime.getURL(\"/content-scripts/all.css\");try{return(await(await fetch(t)).text()).replaceAll(\":root\",\":host\")}catch(r){return Z.$css=void 0,n.warn(`Failed to load styles @ ${t}. Did you forget to import the stylesheet in your entrypoint?`,r),\"\"}}());o.push(t)",
+    "replace": "const t=await(X.$css??=async function(){const t=e.runtime.getURL(\"/content-scripts/all.css\");try{return(await(await fetch(t)).text()).replaceAll(\":root\",\":host\")}catch(r){return X.$css=void 0,n.warn(`Failed to load styles @ ${t}. Did you forget to import the stylesheet in your entrypoint?`,r),\"\"}}());o.push(t)",
     "why": "Shadow-root UIs (Z, WXT's createShadowRootUi): fetch all.css (218 KB) and rewrite its :root rules once per page instead of on every mount; a failed fetch is retried by the next mount, as before."
   },
   {
     "group": "perf",
     "file": "content-scripts/all.js",
-    "find": "const{shadowCss:s,documentCss:i}=function(t){return{documentCss:Array.from(t.matchAll(G),t=>t[0]).join(\"\").trim(),shadowCss:t.replace(G,\"\").trim()}}(o.join(\"\\n\").trim())",
-    "replace": "const{shadowCss:s,documentCss:i}=(t=>(Z.$split??=new Map).get(t)??Z.$split.set(t,function(t){return{documentCss:Array.from(t.matchAll(G),t=>t[0]).join(\"\").trim(),shadowCss:t.replace(G,\"\").trim()}}(t)).get(t))(o.join(\"\\n\").trim())",
+    "find": "const{shadowCss:s,documentCss:i}=function(t){return{documentCss:Array.from(t.matchAll(F),t=>t[0]).join(\"\").trim(),shadowCss:t.replace(F,\"\").trim()}}(o.join(\"\\n\").trim())",
+    "replace": "const{shadowCss:s,documentCss:i}=(t=>(X.$split??=new Map).get(t)??X.$split.set(t,function(t){return{documentCss:Array.from(t.matchAll(F),t=>t[0]).join(\"\").trim(),shadowCss:t.replace(F,\"\").trim()}}(t)).get(t))(o.join(\"\\n\").trim())",
     "why": "Shadow-root UIs: split the same stylesheet into its document (@property, @font-face) and shadow rules once per page. Each split regex-scans all of all.css, a few milliseconds per mount, and a Canvas page mounts many UIs."
   },
   {
@@ -604,8 +604,8 @@
   {
     "group": "fixes",
     "file": "content-scripts/all.js",
-    "find": "t?(await Qm({pending_hide_logo_confirmation:!0}),e.runtime.sendMessage({action:\"SHARED_COMPONENT_REQUEST\",payload:{component:\"puzzleIconGuide\",active:!0}})):await j_({hide_bettercanvas_logo:!1,pending_hide_logo_confirmation:!1})",
-    "replace": "await j_({hide_bettercanvas_logo:t,pending_hide_logo_confirmation:!1})",
+    "find": "t?(await ep({pending_hide_logo_confirmation:!0}),e.runtime.sendMessage({action:\"SHARED_COMPONENT_REQUEST\",payload:{component:\"puzzleIconGuide\",active:!0}})):await l4({hide_bettercanvas_logo:!1,pending_hide_logo_confirmation:!1})",
+    "replace": "await l4({hide_bettercanvas_logo:t,pending_hide_logo_confirmation:!1})",
     "why": "Settings > Sidebar > Hide BetterCampus Logo: apply the switch right away. Upstream left the switch off, marked the hide as pending and opened a guide (with a Chrome screenshot) asking for a click on the BetterCampus toolbar icon; only that click hid the button, and closing the guide cancelled it. With the button hidden, the menu still opens from the toolbar button on a Canvas tab and from the search bar's 'Open BetterCampus'."
   },
   {
@@ -621,35 +621,5 @@
     "find": "borders:\"#3d3d3d\",links:\"#56Caf0\",sidebar:\"var(--ic-brand-global-nav-bgd__dark)\",\"sidebar-text\":\"var(--ic-brand-global-nav-menu-item__text-color__dark)\",\"text-0\":\"#f5f5f5\",\"text-1\":\"#e2e2e2\"",
     "replace": "borders:\"#3d3d3d\",links:\"#56Caf0\",sidebar:\"var(--ic-brand-global-nav-bgd__dark)\",\"sidebar-text\":\"var(--ic-brand-global-nav-menu-item__text-color__dark)\",\"text-0\":\"#dedede\",\"text-1\":\"#d0d0d0\"",
     "why": "Default dark palette (Pu; the stored-defaults copy has buttons: and doesn't match): softer text, #dedede and #d0d0d0 instead of near-white #f5f5f5 and #e2e2e2. It colors dark mode without a theme and BetterCampus's own panels in dark mode (the settings menu, To-Do list, widgets), where the white glared on the dark gray."
-  },
-  {
-    "group": "subframe",
-    "file": "content-scripts/all.js",
-    "find": "const r=performance.now(),a=Kle();if(void 0,function(){const t=at(\"1xatgiol\");try{if(TDe||\"undefined\"==typeof document||!(\"fonts\"in document))return;TDe=!0;for(const{file:t,unicodeRange:n}of DDe)try{const r=new FontFace(\"Figtree\",`url(${e.runtime.getURL(t)}) format(\"woff2\")`,{style:\"normal\",weight:\"300 900\",display:\"swap\",unicodeRange:n});document.fonts.add(r)}catch{}}catch(n){throw ot(t),n}finally{st(t)}}(),window!==window.top)return a&&setTimeout(()=>{const t=at(\"jiabc4n4\");try{return a.remove()}catch(e){throw ot(t),e}finally{st(t)}},1500),void 0;",
-    "why": "all.js's subframe path: compute the anti-flicker style (Kle), register the Figtree font, then return, lifting that style after 1.5 s. src/subframe.ts does exactly this in subframes, where all.js no longer loads."
-  },
-  {
-    "group": "subframe",
-    "file": "content-scripts/all.js",
-    "find": "function Kle(t){const e=at(\"uo7517cm\");try{try{const t=$le();if(void 0,!t)return null;const e=(t?.theme?.custom_domain??[]).some(t=>{const e=at(\"6ge8hq10\");try{return window.location.origin.includes(t)}catch(n){throw ot(e),n}finally{st(e)}});if(void 0,!e)return null;let n=\"\";t?.theme?.theme_enabled&&t.theme?.bg&&(t?.theme?.sidebar?.color||t?.theme?.sidebar,n+=`body,#wrapper,#main { background-color: ${t.theme?.bg}!important; }`),!t?.theme?.theme_enabled&&t?.theme?.dark_mode&&(n+=\"body,#wrapper { background-color: #161616!important; }\");const r=document.createElement(\"style\");return r.textContent=n,document.documentElement.appendChild(r),function(t){const e=at(\"sa3fkx42\");try{if(\"canvas\"!==t?.lms_type)return;if(!1===t?.sidebar_enabled)return;if(\"custom\"===t?.header_layout)return;if(!document.getElementById(\"bettercampus-nav-suppression\")){const t=document.createElement(\"style\");t.id=Ole,t.textContent=Ble,document.documentElement.appendChild(t)}const e=t?.sidebar_width;if(\"number\"==typeof e&&Number.isFinite(e)&&!document.getElementById(\"bettercanvas-sidebar-width\")){const t=document.createElement(\"style\");t.id=Mle,t.textContent=`${Gle(e)}${Yle}`,document.documentElement.appendChild(t)}setTimeout(()=>{const t=at(\"7l3x4xu5\");try{if(Fle())return;qle(),document.getElementById(Mle)?.remove()}catch(e){throw ot(t),e}finally{st(t)}},Hle)}catch(n){throw ot(e),n}finally{st(e)}}(t?.theme),r}catch(n){return null}}catch(r){throw ot(e),r}finally{st(e)}}function _le(t){const e=at(\"1tkeujxm\");try{try{const e=localStorage.getItem(t);return e?JSON.parse(e):{}}catch(n){return{}}}catch(r){throw ot(e),r}finally{st(e)}}function $le(){const t=at(\"sxvqvbh7\");try{return{theme:_le(\"_bettercampus_theme_cache\")}}catch(e){throw ot(t),e}finally{st(t)}}",
-    "why": "Anti-flicker (Kle) and its theme-cache reader (_le, $le), mirrored by src/subframe.ts: antiFlicker, suppressNav, readCache."
-  },
-  {
-    "group": "subframe",
-    "file": "content-scripts/all.js",
-    "find": "var DDe=[{file:\"/fonts/figtree-latin.woff2\",unicodeRange:\"U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD\"},{file:\"/fonts/figtree-latin-ext.woff2\",unicodeRange:\"U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF\"}],TDe=!1;",
-    "why": "Figtree font files and unicode ranges (DDe), mirrored by src/subframe.ts: FONTS."
-  },
-  {
-    "group": "subframe",
-    "file": "content-scripts/all.js",
-    "find": "Jle=l(()=>{vt(),Mle=\"bettercanvas-sidebar-width\",zle={expanded:180,collapsed:86,hidden:0},Dle=t=>{const e=at(\"obec8tcc\");try{return zle[t]}catch(n){throw ot(e),n}finally{st(e)}},Tle=\"data-bc-sidebar-ready\",Ole=\"bettercampus-nav-suppression\",Ble=`\\n\\thtml:not([${Ple=\"data-bc-nav-restore\"}]) #header > *:not(bettercampus-element) {\\n\\t\\topacity: 0 !important;\\n\\t\\tpointer-events: none !important;\\n\\t}\\n`,Rle=()=>{const t=at(\"opgj93ap\");try{document.documentElement.setAttribute(Tle,\"\")}catch(e){throw ot(t),e}finally{st(t)}},qle=()=>{const t=at(\"hp9tkap7\");try{document.documentElement.setAttribute(Ple,\"\")}catch(e){throw ot(t),e}finally{st(t)}},Lle=()=>{const t=at(\"nmzb5986\");try{document.documentElement.removeAttribute(Ple)}catch(e){throw ot(t),e}finally{st(t)}},Fle=()=>{const t=at(\"8vqvtthc\");try{return document.documentElement.hasAttribute(Tle)}catch(e){throw ot(t),e}finally{st(t)}},Gle=t=>{const e=at(\"fenjgodd\");try{return`\\n\\t:root {\\n\\t\\t--bcsidebarwidth: ${t}px;\\n\\t}\\n\\n\\tbody > #nav-tray-portal > span > span {\\n\\t\\tleft: var(--bcsidebarwidth, 200px) !important;\\n\\t\\ttransition: left 0.5s cubic-bezier(0.25, 0.1, 0.25, 1.0) !important;\\n\\t}\\n\\n\\t#header {\\n\\t\\twidth: var(--bcsidebarwidth) !important;\\n\\t\\toverflow-x: hidden !important;\\n\\t\\ttransition: width 0.5s cubic-bezier(0.25, 0.1, 0.25, 1.0) !important;\\n\\t}\\n\\n\\t.tray-with-space-for-global-nav {\\n\\t\\tmargin-left: 0!important;\\n\\t}\\n\\n\\tbody.bettercampus-home-popup-open bettercanvas-sidebar::part(bettercanvas-sidebar-popup-btn) {\\n\\t\\topacity: 1!important;\\n\\t\\tbackground-color: var(--bcbackground-0, #fff)!important;\\n\\t}\\n\\n\\tbody.bettercampus-home-popup-open bettercanvas-sidebar::part(bettercanvas-sidebar-popup-btn-txt) {\\n\\t\\tcolor: var(--bctext-0, #273540)!important;\\n\\t}\\n\\n\\t@media print {\\n\\t\\t:root {\\n\\t\\t\\t--bcsidebarwidth: 0px !important;\\n\\t\\t}\\n\\t\\t#wrapper {\\n\\t\\t\\tmargin-left: 0 !important;\\n\\t\\t}\\n\\t\\t#header.ic-app-header {\\n\\t\\t\\tdisplay: none !important;\\n\\t\\t}\\n\\t}\\n`}catch(n){throw ot(e),n}finally{st(e)}},Yle=\"\\n\\t#wrapper {\\n\\t\\tmargin-left: var(--bcsidebarwidth) !important;\\n\\t\\tmax-width: 100% !important;\\n\\t}\\n\"});",
-    "why": "Sidebar ids, attributes and CSS the anti-flicker uses (Mle, Tle, Ole, Ble/Ple, qle, Fle, Gle, Yle), mirrored by src/subframe.ts."
-  },
-  {
-    "group": "subframe",
-    "file": "content-scripts/all.js",
-    "find": "hde=l(()=>{vt(),r$(),bVt(),Jle(),Hle=1500",
-    "why": "Nav restore delay (Hle = 1500 ms), mirrored by src/subframe.ts: LIFT_AFTER."
   }
 ]

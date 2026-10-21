@@ -232,7 +232,7 @@ function showDay(date: Date) {
 		root.style.position = "relative";
 		const el = document.createElement("div");
 		el.className =
-			"p-4 pt-5 bg-theme-0 text-theme-0 flex flex-col gap-3 h-full overflow-auto";
+			"p-4 pt-3 bg-theme-0 text-theme-0 flex flex-col gap-3 h-full overflow-auto";
 		el.style.cssText = "position:absolute;inset:0;z-index:5";
 		root.append(el);
 		view = { el, date, list: null, timer: 0, seq: 0 };
@@ -291,7 +291,8 @@ async function render(date: Date) {
 	v.el.replaceChildren(
 		el(
 			"div",
-			"flex items-center justify-between",
+			// pr-8 keeps the arrows clear of the widget's close button.
+			"flex min-h-8 items-center justify-between pr-8",
 			el(
 				"div",
 				"flex items-center gap-2",

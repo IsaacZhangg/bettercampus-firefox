@@ -4,23 +4,22 @@ An unofficial Firefox port of the [BetterCampus (prev. BetterCanvas)](https://ch
 
 ## What's removed
 
-`patches.json` holds 89 string patches against the minified bundle, plus 5 anchors that patch nothing (group `subframe`, below). Each entry has a `group` and a `why`.
+`patches.json` holds 89 string patches against the minified bundle. Each entry has a `group` and a `why`.
 
 | Group | Removes |
 | --- | --- |
 | `menu` | The remote ext.bettercampus.com app shell (hub, planner, grades, notes, study, locker, explore, login). The menu opens the extension's built-in local settings panel instead. |
 | `promos` | Campaign popups, the welcome tab and referral capture on install, the what's-new tour, the uninstall survey URL, upgrade/paywall dialogs, the rate-us prompt, and the sidebar "Join free / Upgrade / Refer a friend" footer. |
-| `page` | Canvas-page injections: the Planner/Notes/Grades/Study sidebar items, the AI syllabus CTA, the calendar Sync buttons, the "+ Create" card button, AI reminder prompts, cloud grade links, and the remote dashboard widgets. |
+| `page` | Canvas-page injections: the Planner/Notes/Grades/Study sidebar items, the AI syllabus CTA, the calendar Sync buttons, the "+ Create" card button, AI reminder prompts (and their share of the Notification Center's unread count), cloud grade links, and the remote dashboard widgets. |
 | `cleanup` | Leftovers found by rendering the build: cloud/AI widgets in the Widgets catalog, the Calendar Sync and Streaks settings, the AI Transparency row, the "Create free account" theme wall, the GPA history dialog's Upload Transcript tab (a cloud AI import), settings text that still mentioned calendar sync or a BetterCampus account, and background settings-sync and streak requests. |
-| `removals` | Fun widgets (the floating music/timer/dino/quote/breathe widgets and the Doge dashboard widget), file annotations (the PDF annotation layer in the Canvas file viewer and its settings), and auto-rotating themes (the header button and the Appearance section). |
+| `removals` | Fun widgets (the floating music/timer/dino/quote/breathe widgets and the Doge dashboard widget), file annotations (the PDF annotation layer in the Canvas file viewer, its tooltip overlay and its settings), and auto-rotating themes (the header button and the Appearance section). |
 | `bcx` | Hooks that hand some Pro-locked controls to our own implementations in `src/bcx/` (below). |
 | `telemetry` | PostHog usage analytics, sent straight to `us.i.posthog.com` from the background script, the page content script and the file viewer, plus the startup call that links the anonymous analytics ID to an account. Each of these first asks BetterCampus's own analytics consent check, which now always answers no, whatever the stored `anonymous_usage_data` setting says. |
 | `cloud` | Requests to `api.bettercampus.com` made without an account. Upstream's backend client sends them anyway, tagged with a persistent device ID: every To-Do edit (with the assignment title, course code, due date and status in plain text), class schedule edits (course name, code and meeting times) and To-Do lookups. Both copies of the client, in the page script and the background script, now answer as a signed-out request would, except for the public reads the community theme browser needs: theme lists, single themes, comments, slot limits and sticker palettes. |
 | `perf` | Work repeated for no change in result. Each shadow-root UI BetterCampus mounts re-fetched the 218 KB `all.css` and regex-split it into document and shadow rules, a few milliseconds of work per mount, and a Canvas page mounts many. Both now happen once per page. |
 | `fixes` | Upstream behavior that ignored your settings. The sidebar's course list showed each course's code even after you renamed the course with the card's Edit button; it now shows the new name, and courses you haven't renamed still show their code. Turning on Settings → Sidebar → Hide BetterCampus Logo left the switch off and opened a guide (with a Chrome screenshot) asking you to click the BetterCampus toolbar icon; only that click hid the sidebar's BetterCampus button, and closing the guide cancelled it. The switch now hides and shows the button directly. The toolbar button on a Canvas tab and the search bar's "Open BetterCampus" still open the menu. Dark mode with a light theme used a muddy palette; it now gets a real dark one (see [Dark mode for light themes](#dark-mode-for-light-themes-srcbcxdarkpresetts)). Dark mode's default text, which BetterCampus's own panels also use, was near white (`#f5f5f5`); it is now `#dedede`. |
-| `subframe` | Nothing: these entries only pin the upstream code that `src/subframe.ts` mirrors (see [Load time](#load-time)), so the build fails if it changes. |
 
-The manifest also drops `googlecalendar.js`, `outlookcalendar.js` and `stripe.js`, which only served calendar sync and checkout. It also drops `extension-bridge.js`, which let pages on ext.bettercampus.com read the extension's settings and IndexedDB, change settings, and act in your Canvas tab. The build also leaves out 5.9 MB of packaged files that nothing references: large illustrations, the referral avatars, the grades onboarding videos, a Chrome Web Store screenshot, old icons and a dark-mode stylesheet the bundle doesn't load.
+The manifest also drops `googlecalendar.js`, `outlookcalendar.js` and `stripe.js`, which only served calendar sync and checkout. It also drops `extension-bridge.js`, which let pages on ext.bettercampus.com read the extension's settings and IndexedDB, change settings, and act in your Canvas tab, and `app-bridge.js`, which lets app.bettercampus.com sign the extension in to an account (login codes, logout, calendar connect). The build also leaves out 5.9 MB of packaged files that nothing references: large illustrations, the referral avatars, the grades onboarding videos, a Chrome Web Store screenshot, old icons and a dark-mode stylesheet the bundle doesn't load.
 
 ## Our own versions of Pro features (`src/bcx/`)
 
@@ -96,14 +95,15 @@ Firefox deletes all of an add-on's storage when the add-on is removed: on uninst
 
 ## Load time
 
-BetterCampus injects `all.js` into every page you visit, so its cost lands on all your browsing, not just Canvas. The build cuts that cost in four ways. None of them changes a feature; the one thing that stops working is a hidden developer timing tool (see Profiler).
+BetterCampus injects `all.js` into every page you visit, so its cost lands on all your browsing, not just Canvas. The build cuts that cost in three ways. None of them changes a feature; the one thing that stops working is a hidden developer timing tool (see Profiler).
 
-- **Subframes.** `all.js` ran in every frame of every page, including ads, embeds and video players. Before its `main()` returned for a subframe, it initialized all of BetterCampus: React, its API schemas, the Tailwind class merger and every other module. In the measurements below that came to about 300 ms per frame, and in a subframe all of it served two small jobs. It registered the Figtree font, which the Canvas file viewer's UI uses, and, when the LMS frames one of its own pages, it painted a cached anti-flicker style for 1.5 s. `all.js` and `bcx.js` now load in the top frame only, and a 3 KB `subframe.js` (`src/subframe.ts`) does those two jobs in every frame. The `subframe` anchors in `patches.json` pin the upstream code it mirrors.
-- **Profiler.** BetterCampus wraps ~9k functions per bundle in a local profiler (`const e=at("id");try{…}catch(n){throw ot(e),n}finally{st(e)}`). Its spans only record while a hidden debug mode is on, but every call paid for them anyway. The build unwraps them all and drops the span ids nothing reads, so the hidden Debug tab no longer has anything to time.
-- **Dead code.** Terser then runs a pass over every bundle that only removes or folds code: no mangling or inlining. It drops what the patches leave unreachable and whatever only that code used, such as the file viewer's annotation toolbar and the campaign card's 842 KB inline image. `all.js` goes from 5.2 to 3.7 MiB, `background.js` from 429 to 364 KiB and `viewer.js` from 700 to 638 KiB.
+- **Profiler.** BetterCampus wraps ~9k functions per bundle in a local profiler (`const e=rt("id");try{…}catch(n){throw at(e),n}finally{ot(e)}`). Its spans only record while a hidden debug mode is on, but every call paid for them anyway. The build unwraps them all and drops the span ids nothing reads, so the hidden Debug tab no longer has anything to time.
+- **Dead code.** Terser then runs a pass over every bundle that only removes or folds code: no mangling or inlining. It drops what the patches leave unreachable and whatever only that code used, such as the file viewer's annotation toolbar and the campaign card's 842 KB inline image. `all.js` goes from 5.1 to 3.6 MiB, `background.js` from 443 to 373 KiB and `viewer.js` from 3.0 to 2.5 MiB.
 - **Repeated work.** The `perf` patches above. `bcx.js` is minified, only reads the large `overrides` object when saved session times need checking against it, and the dark-mode fix no longer scans stylesheets while dark mode and themes are off.
 
-Measured in headless Firefox 158 on a slow virtual machine, so the ratios matter more than the absolute times:
+Up to 9.8.15, `all.js` also ran in every frame of every page, including ads, embeds and video players. Before its `main()` returned for a subframe, it initialized all of BetterCampus, about 300 ms per frame in the measurements below, only to register a font and paint a cached anti-flicker style. This port loaded it in the top frame only and did those two jobs in a small `subframe.js`. Since 9.9.1 upstream does the same: `all.js` runs in the top frame only, and the file viewer registers its own font. `subframe.js` is gone, and the build fails if a new version runs `all.js` in subframes again.
+
+Measured on the 9.8.15 build in headless Firefox 158 on a slow virtual machine, so the ratios matter more than the absolute times. For 9.9.1 the Chrome package is 11.9 MiB and the `.xpi` 5.3 MiB; the larger `.xpi` comes from upstream's file viewer script, which grew from 0.7 to 3.0 MiB.
 
 | | Before | After | No extension |
 | --- | --- | --- | --- |
@@ -122,11 +122,11 @@ bun install
 bun port-to-firefox.ts [path/to/chrome.zip]
 ```
 
-This repo doesn't include BetterCampus itself. Supply the extension's Chrome Web Store package as a `.zip`; the patches target version 9.8.15. The script uses the `*Chrome*.zip` in this directory unless you pass a path. It outputs `firefox/` (unpacked) and `dist/bettercampus-firefox-<version>.xpi`. It also does the Firefox manifest conversion: `background.scripts`, `browser_specific_settings.gecko`, and removing `update_url` and `_metadata/`.
+This repo doesn't include BetterCampus itself. Supply the extension's Chrome Web Store package as a `.zip`; the patches target version 9.9.1. The script uses the `*Chrome*.zip` in this directory unless you pass a path. It outputs `firefox/` (unpacked) and `dist/bettercampus-firefox-<version>.xpi`. It also does the Firefox manifest conversion: `background.scripts`, `browser_specific_settings.gecko`, and removing `update_url` and `_metadata/`.
 
-Patch anchors are minified code, so a new upstream version will likely break some of them. The script stops and names each patch whose anchor no longer matches exactly once; those need re-deriving against the new bundle. A `subframe` anchor that stops matching means upstream changed what `all.js` does in subframes: update `src/subframe.ts` to match before the anchor. Prefer anchors on the stable 8-character `at("…")` instrumentation ids and string literals.
+Patch anchors are minified code, so a new upstream version will likely break some of them. The script stops and names each patch whose anchor no longer matches exactly once; those need re-deriving against the new bundle. Prefer anchors on the 8-character instrumentation ids (`rt("…")` in 9.9.1) and string literals. The ids survive re-minification, but they're numbered by position: when upstream adds a function, the ids after it in the same scope can shift to the neighboring function. So read the code around a re-derived anchor rather than trusting the id alone. An anchor whose `find` still matches can also have a stale `replace`, if it names a variable that was renamed.
 
-AMO's linter refuses to parse any JS file of 5 MiB or more, which blocks signing, and the patched `all.js` is 5.19 MiB. The profiler and dead-code passes above bring it to 3.7 MiB, and the build fails if any file ends up over the limit. Those passes take most of the build's 20 seconds. `bun run lint:ext` runs the same linter as AMO.
+AMO's linter refuses to parse any JS file of 5 MiB or more, which blocks signing, and the patched `all.js` is 5.05 MiB. The profiler and dead-code passes above bring it to 3.6 MiB, and the build fails if any file ends up over the limit. Those passes take most of the build's 20 seconds. `bun run lint:ext` runs the same linter as AMO.
 
 ## Install
 
@@ -144,7 +144,7 @@ Release Firefox only installs add-ons signed by Mozilla. Signing it as an **unli
    - **CLI with 1Password:** save the keys in 1Password as an **API Credential** item: the JWT issuer goes in **username** and the JWT secret in **credential**. Point the two references in `amo.env` at that item; they default to `op://Private/AMO/…`, and each field's **Copy Secret Reference** gives the exact path. Turn on 1Password → Settings → Developer → **Integrate with 1Password CLI**, then run `bun run sign:1p`. `op run` resolves the references and passes the keys only to the signing process.
 3. In Firefox, open `about:addons` → ⚙ → **Install Add-on From File…** and pick the signed `.xpi`.
 
-AMO signs each version number once per add-on ID. To sign a rebuild of the same upstream version, build with a fourth version part: `BUILD=2 bun run build` makes `9.8.15.2`. Installing a newer signed build replaces the old one and keeps your settings, since the add-on ID stays the same. If you remove the old one first, opening Canvas brings them back from the [settings backup](#settings-backup-srcbcxbackupts-srcoptions).
+AMO signs each version number once per add-on ID. To sign a rebuild of the same upstream version, build with a fourth version part: `BUILD=2 bun run build` makes `9.9.1.2`. Installing a newer signed build replaces the old one and keeps your settings, since the add-on ID stays the same. If you remove the old one first, opening Canvas brings them back from the [settings backup](#settings-backup-srcbcxbackupts-srcoptions).
 
 Unlisted add-ons can still be manually reviewed by Mozilla at any time, and reviewers may ask for unminified source, which this port doesn't have.
 
@@ -155,4 +155,5 @@ To test without signing, open `about:debugging#/runtime/this-firefox`, click **L
 - The toolbar button does nothing on non-Canvas tabs, because it used to open the remote setup page. Visit your Canvas site and it is detected automatically, or set the URL under Other → Your Canvas URL.
 - Free plans still get one focus session per assignment ("Plan another focus session" keeps its Pro crown).
 - Planned-session reminders are still Pro-only, so a session's time doesn't trigger a notification.
+- The Notification Center's settings button does nothing: it opened the cloud app's notification settings.
 - The browser APIs differ from Chrome in a few spots: there is no eyedropper in the color picker, and the rate link still points to the Chrome Web Store.

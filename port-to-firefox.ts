@@ -55,13 +55,16 @@ const manifestPath = resolve(outDir, "manifest.json");
 const manifest = await Bun.file(manifestPath).json();
 
 // Content scripts that only serve the removed cloud/Pro features: calendar
-// sync, Stripe checkout, and the bridge that hands ext.bettercampus.com the
-// extension's settings, IndexedDB and Canvas tab.
+// sync, Stripe checkout, the bridge that hands ext.bettercampus.com the
+// extension's settings, IndexedDB and Canvas tab, and the one that lets
+// app.bettercampus.com sign the extension in (login codes, logout, calendar
+// connect).
 const unused = [
 	"content-scripts/googlecalendar.js",
 	"content-scripts/outlookcalendar.js",
 	"content-scripts/stripe.js",
 	"content-scripts/extension-bridge.js",
+	"content-scripts/app-bridge.js",
 ];
 manifest.content_scripts = manifest.content_scripts.filter(
 	(cs: { js: string[] }) => !cs.js.some((js) => unused.includes(js)),
@@ -280,11 +283,10 @@ if (build) {
 // runs fine as a non-persistent event page.
 manifest.background = { scripts: [manifest.background.service_worker] };
 
-// Our own scripts (src/): two content scripts, in the same isolated world as
+// Our own scripts (src/): a content script, in the same isolated world as
 // all.js, and the options page's settings export/import.
 for (const [entry, file] of [
 	["src/bcx/main.ts", "content-scripts/bcx.js"],
-	["src/subframe.ts", "content-scripts/subframe.js"],
 	["src/options/options.ts", "options/options.js"],
 ]) {
 	const out = await Bun.build({
@@ -302,23 +304,15 @@ await Bun.write(
 );
 manifest.options_ui = { page: "options/options.html", open_in_tab: true };
 
-// all.js runs in the top frame only, followed by bcx.js, whose functions its
-// patched controls call through globalThis.__bcx. In subframes, all.js used
-// to initialize all of BetterCampus only to add a font and an anti-flicker
-// style; subframe.js does just that there (see src/subframe.ts).
-const allIndex = manifest.content_scripts.findIndex((cs: { js: string[] }) =>
+// bcx.js runs right after all.js, whose patched controls call its functions
+// through globalThis.__bcx. Upstream runs all.js in the top frame only (since
+// 9.9.1); a version that runs it in subframes again needs checking for what it
+// does there.
+const allEntry = manifest.content_scripts.find((cs: { js: string[] }) =>
 	cs.js.includes("content-scripts/all.js"),
 );
-const allEntry = manifest.content_scripts[allIndex];
-delete allEntry.all_frames;
+if (allEntry.all_frames) throw new Error("all.js runs in subframes again");
 allEntry.js.push("content-scripts/bcx.js");
-manifest.content_scripts.splice(allIndex + 1, 0, {
-	matches: allEntry.matches,
-	exclude_matches: allEntry.exclude_matches,
-	all_frames: true,
-	run_at: allEntry.run_at,
-	js: ["content-scripts/subframe.js"],
-});
 
 manifest.browser_specific_settings = {
 	gecko: {
